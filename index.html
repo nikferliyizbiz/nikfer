@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#8B4513">
+<meta name="description" content="Nikfer kasabasının dijital bellek arşivi — 1999-2006">
+
+<!-- iOS PWA zorunlu taglar -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Nikfer">
+
+<!-- iOS Ana Ekrana Ekle ikonları -->
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/icon-128.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="167x167" href="icons/icon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png">
+
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%27.9em%27 font-size=%2790%27>🏡</text></svg>">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<title>Nikfer Belleği</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --primary:#8B4513;--primary-light:#A0522D;--primary-dark:#5C2E0A;
+  --accent:#D4A853;--accent-light:#F0C870;
+  --bg:#FAF7F2;--bg-card:#FFFFFF;
+  --text:#2C1A0A;--text-muted:#7A5C3A;
+  --border:rgba(139,69,19,0.15);
+  --shadow:0 2px 16px rgba(139,69,19,0.1);
+  --radius:16px;--nav-h:62px;--header-h:54px;
+  /* iPhone safe area */
+  --sat: env(safe-area-inset-top);
+  --sab: env(safe-area-inset-bottom);
+  --sal: env(safe-area-inset-left);
+  --sar: env(safe-area-inset-right);
+}
+/* Tam ekran mod için body */
+body{padding-top:env(safe-area-inset-top)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* HEADER */
+.app-header{position:fixed;top:0;left:0;right:0;z-index:100;height:calc(var(--header-h) + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);background:var(--primary);display:flex;align-items:center;justify-content:space-between;padding-left:16px;padding-right:16px;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.header-left h1{color:#FFF;font-size:17px;font-weight:600}
+.header-left p{color:rgba(255,255,255,.7);font-size:10px}
+.header-btn{background:none;border:none;cursor:pointer;color:var(--accent-light);font-size:22px;padding:4px;display:flex;align-items:center}
+
+/* BOTTOM NAV */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:100;height:calc(var(--nav-h) + env(safe-area-inset-bottom));background:#FFF;border-top:1px solid var(--border);display:flex;padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;border:none;background:none;color:var(--text-muted);font-size:9px;font-weight:500;padding:6px 2px;transition:color .2s}
+.nav-item.active{color:var(--primary)}
+.nav-item i{font-size:22px}
+
+/* MAIN */
+.main-content{margin-top:calc(var(--header-h) + env(safe-area-inset-top));margin-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom));min-height:calc(100vh - var(--header-h) - var(--nav-h))}
+.page{display:none;padding:14px;animation:fadeIn .2s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* HERO */
+.hero{border-radius:var(--radius);overflow:hidden;margin-bottom:14px;position:relative;min-height:200px;display:flex;align-items:flex-end}
+.hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 30%;display:block}
+/* Altta koyu gradyan — metni okunabilir kılar */
+.hero::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom, rgba(44,26,10,.15) 0%, rgba(44,26,10,.55) 55%, rgba(44,26,10,.88) 100%);border-radius:var(--radius)}
+.hero-content{position:relative;z-index:2;padding:20px 18px 18px;width:100%}
+.hero-badge{display:inline-block;background:var(--accent);color:var(--primary-dark);font-size:10px;font-weight:600;padding:3px 10px;border-radius:20px;margin-bottom:8px}
+.hero h2{color:#FFF;font-size:22px;font-weight:700;margin-bottom:5px;text-shadow:0 1px 4px rgba(0,0,0,.4)}
+.hero p{color:rgba(255,255,255,.88);font-size:12px;line-height:1.6;text-shadow:0 1px 3px rgba(0,0,0,.3)}
+.hero-caption{position:absolute;top:10px;right:10px;z-index:3;background:rgba(0,0,0,.4);color:rgba(255,255,255,.75);font-size:9px;padding:3px 8px;border-radius:20px;backdrop-filter:blur(4px)}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center}
+.stat-num{font-size:18px;font-weight:700;color:var(--primary);line-height:1}
+.stat-lbl{font-size:9px;color:var(--text-muted);margin-top:3px;line-height:1.3}
+
+/* SECTION TITLE */
+.sec-title{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin:16px 0 8px}
+.sec-title:first-child{margin-top:0}
+
+/* MENU GRID */
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+.menu-item{background:var(--bg-card);border:1px solid var(--border);border-bottom:3px solid var(--primary);border-radius:var(--radius);padding:14px 10px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:7px;transition:transform .15s;user-select:none}
+.menu-item:active{transform:scale(.97)}
+.menu-item i{font-size:26px;color:var(--primary)}
+.menu-item span{font-size:11px;font-weight:600;color:var(--text);line-height:1.3}
+
+/* CARD */
+.card{background:var(--bg-card);border-radius:var(--radius);border:1px solid var(--border);overflow:hidden;margin-bottom:12px}
+.card-header{background:var(--primary);padding:11px 14px;display:flex;align-items:center;gap:9px}
+.card-header i{color:var(--accent-light);font-size:19px}
+.card-header h3{color:#FFF;font-size:14px;font-weight:600}
+.card-body{padding:14px}
+
+/* LIST ITEM */
+.list-item{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.list-item:last-child{border-bottom:none}
+.list-icon{width:38px;height:38px;background:rgba(139,69,19,.08);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.list-icon i{font-size:19px;color:var(--primary)}
+.list-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.list-sub{font-size:11px;color:var(--text-muted);line-height:1.4}
+.list-arrow{color:var(--border);font-size:15px;margin-top:2px;flex-shrink:0}
+
+/* DETAIL OVERLAY */
+.detail-page{display:none;position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto;padding-bottom:var(--nav-h)}
+.detail-page.open{display:block;animation:slideIn .25s ease}
+@keyframes slideIn{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+.detail-header{position:sticky;top:0;z-index:10;background:var(--primary);padding:11px 14px;display:flex;align-items:center;gap:10px}
+.back-btn{background:none;border:none;color:#FFF;font-size:22px;cursor:pointer;display:flex;align-items:center;padding:2px;flex-shrink:0}
+.detail-header h2{color:#FFF;font-size:14px;font-weight:600;flex:1;line-height:1.3}
+.detail-body{padding:14px}
+/* Detail sayfasında Bottom Nav */
+.detail-nav{position:fixed;bottom:0;left:0;right:0;z-index:300;height:var(--nav-h);background:#FFF;border-top:1px solid var(--border);display:none;padding-bottom:env(safe-area-inset-bottom)}
+.detail-page.open + * + * .detail-nav,
+.detail-nav.visible{display:flex}
+
+/* CONTENT BLOCK RENDERERS */
+.blk-paragraph{font-size:13px;line-height:1.85;color:var(--text);margin-bottom:14px;text-align:justify}
+.blk-heading{font-size:15px;font-weight:700;color:var(--primary);margin:20px 0 8px;border-left:3px solid var(--accent);padding-left:9px}
+.blk-quote{background:rgba(139,69,19,.06);border-left:3px solid var(--accent);border-radius:0 9px 9px 0;padding:10px 14px;margin:12px 0;font-size:13px;line-height:1.7;color:var(--text);font-style:italic}
+.blk-quote-author{font-size:11px;color:var(--text-muted);margin-top:5px;font-style:normal}
+.blk-poem{font-family:Georgia,serif;font-size:13px;line-height:2.1;color:var(--text);background:rgba(212,168,83,.08);border-radius:10px;padding:14px;margin:12px 0;white-space:pre-line}
+.blk-poem-author{font-size:11px;color:var(--text-muted);margin-top:6px}
+.blk-note{font-size:11px;color:var(--text-muted);background:rgba(139,69,19,.05);border-radius:8px;padding:8px 12px;margin-bottom:14px}
+.blk-info-row{display:flex;justify-content:space-between;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--border)}
+.blk-info-row:last-child{border-bottom:none}
+.blk-info-key{font-size:12px;color:var(--text-muted)}
+.blk-info-val{font-size:12px;font-weight:600;color:var(--text);text-align:right;max-width:58%}
+.blk-list-item{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text);line-height:1.5}
+.blk-list-item:last-child{border-bottom:none}
+.blk-list-item::before{content:'•';color:var(--accent);flex-shrink:0;font-size:16px;line-height:1.4}
+.blk-list-item.bilmece{flex-direction:column;gap:4px;cursor:pointer}
+.bilmece-q{font-weight:600}
+.bilmece-a{background:rgba(139,69,19,.06);border-radius:6px;padding:5px 10px;font-size:12px;color:var(--primary);display:none}
+.bilmece-a.open{display:block}
+.bilmece-btn{font-size:11px;color:var(--primary);cursor:pointer;border:none;background:none;padding:0;font-weight:500;text-decoration:underline}
+.blk-divider{border:none;border-top:1px solid var(--border);margin:16px 0}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;margin:12px 0}
+.tbl{width:100%;border-collapse:collapse;font-size:11px}
+.tbl th{background:var(--primary);color:#FFF;padding:7px 5px;text-align:left;font-size:10px;white-space:nowrap}
+.tbl td{padding:7px 5px;border-bottom:1px solid var(--border);color:var(--text)}
+.tbl tr:nth-child(even) td{background:rgba(139,69,19,.04)}
+
+/* AUDIO PLAYER */
+.audio-section{margin:16px 0}
+.audio-item{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.audio-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px}
+.audio-item audio{width:100%;height:36px}
+
+/* GALLERY */
+.gallery-grid{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.gallery-thumb{width:80px;height:80px;flex-shrink:0;position:relative;cursor:pointer;border-radius:8px;overflow:hidden;border:2px solid var(--border);transition:transform .15s,border-color .15s}
+.gallery-thumb:active{transform:scale(.95)}
+.gallery-thumb:hover{border-color:var(--primary)}
+.gallery-img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-thumb-count{position:absolute;inset:0;background:rgba(139,69,19,.7);display:flex;align-items:center;justify-content:center;color:#FFF;font-size:13px;font-weight:700}
+.gallery-caption{font-size:10px;color:var(--text-muted);text-align:center;margin-top:3px;max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* LINKS */
+.link-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);text-decoration:none;color:var(--text)}
+.link-item:last-child{border-bottom:none}
+.link-icon{width:34px;height:34px;background:rgba(139,69,19,.08);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.link-icon i{font-size:17px;color:var(--primary)}
+.link-title{font-size:12px;font-weight:600;color:var(--text)}
+.link-desc{font-size:10px;color:var(--text-muted)}
+
+/* SEARCH */
+.search-wrap{position:relative;margin-bottom:10px}
+.search-wrap i{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--text-muted)}
+.search-wrap input{width:100%;padding:10px 14px 10px 38px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--bg-card);color:var(--text);outline:none;font-family:inherit}
+.search-wrap input:focus{border-color:var(--primary)}
+
+/* TIMELINE */
+.timeline{position:relative;padding-left:26px}
+.timeline::before{content:'';position:absolute;left:9px;top:0;bottom:0;width:2px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:18px}
+.tl-dot{position:absolute;left:-20px;top:3px;width:11px;height:11px;background:var(--accent);border:2px solid var(--primary);border-radius:50%}
+.tl-year{font-size:11px;font-weight:700;color:var(--primary);margin-bottom:3px}
+.tl-text{font-size:12px;color:var(--text);line-height:1.5}
+
+/* CHIP FILTER */
+.chip-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px;scrollbar-width:none}
+.chip-row::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:5px 13px;border-radius:20px;border:1px solid var(--border);font-size:11px;font-weight:500;cursor:pointer;background:var(--bg-card);color:var(--text-muted)}
+.chip.active{background:var(--primary);color:#FFF;border-color:var(--primary)}
+
+/* COMMENTS */
+.comment-form{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.comment-form h3{font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px}
+.form-input{width:100%;border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;margin-bottom:8px}
+.form-input:focus{border-color:var(--primary)}
+textarea.form-input{resize:none;min-height:72px}
+.form-btn{background:var(--primary);color:#FFF;border:none;border-radius:9px;padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;width:100%}
+.comment-item{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px}
+.comment-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.comment-name{font-size:12px;font-weight:600;color:var(--primary)}
+.comment-date{font-size:10px;color:var(--text-muted)}
+.comment-note{font-size:10px;color:var(--text-muted);margin-bottom:4px}
+.comment-text{font-size:13px;color:var(--text);line-height:1.6}
+.pinned-badge{font-size:9px;background:var(--accent);color:var(--primary-dark);padding:2px 7px;border-radius:10px;font-weight:600}
+
+/* LOADING */
+.loading{display:flex;justify-content:center;padding:40px}
+.spinner{width:30px;height:30px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-msg{background:rgba(200,50,50,.08);border-radius:10px;padding:14px;font-size:13px;color:#8B1A1A;text-align:center;margin:20px 0}
+
+/* LIGHTBOX */
+.lightbox{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.93);flex-direction:column;align-items:center;justify-content:center;user-select:none}
+.lightbox.open{display:flex}
+.lightbox-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.12);border:none;color:#FFF;font-size:22px;cursor:pointer;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);z-index:10}
+.lightbox-close:hover{background:rgba(255,255,255,.22)}
+.lightbox-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border:none;color:#FFF;font-size:24px;cursor:pointer;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);transition:background .15s;z-index:10}
+.lightbox-nav:hover{background:rgba(255,255,255,.25)}
+.lightbox-nav:disabled{opacity:.2;cursor:default}
+.lightbox-prev{left:12px}
+.lightbox-next{right:12px}
+.lightbox-img-wrap{display:flex;align-items:center;justify-content:center;width:100%;flex:1;padding:56px 64px 0}
+.lightbox-img-wrap img{max-width:100%;max-height:72vh;object-fit:contain;border-radius:8px;transition:opacity .2s}
+.lightbox-img-wrap img.fade{opacity:0}
+.lightbox-footer{padding:12px 16px;text-align:center;width:100%}
+.lightbox-caption{color:rgba(255,255,255,.85);font-size:12px;margin-bottom:8px;min-height:16px}
+.lightbox-dots{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;max-width:90vw}
+.lightbox-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.3);cursor:pointer;border:none;transition:background .2s,transform .2s;flex-shrink:0}
+.lightbox-dot.active{background:#FFF;transform:scale(1.3)}
+.lightbox-counter{color:rgba(255,255,255,.5);font-size:11px;margin-top:6px}
+/* Swipe için */
+.lightbox-img-wrap{touch-action:pan-y}
+
+/* TOAST */
+.toast{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);background:rgba(44,26,10,.92);color:#FFF;padding:9px 18px;border-radius:20px;font-size:12px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="header-left">
+    <h1>🏡 Nikfer Belleği</h1>
+    <p>1999–2006 Dijital Arşiv</p>
+  </div>
+  <button class="header-btn" onclick="shareApp()" title="Paylaş">
+    <i class="ti ti-share"></i>
+  </button>
+</header>
+
+<!-- MAIN -->
+<main class="main-content">
+
+  <!-- ANA SAYFA -->
+  <section id="page-home" class="page active">
+    <div class="hero">
+      <img
+        class="hero-img"
+        src="https://raw.githubusercontent.com/nikferce/nikfer/main/Nikfer_EskiOkulu_1928.png"
+        alt="Nikfer Eski Okulu 1928"
+        loading="eager"
+        onerror="this.style.display='none';this.parentElement.style.background='linear-gradient(135deg,#8B4513,#A0522D)'"
+      >
+      <div class="hero-caption">Nikfer Eski Okulu · 1928</div>
+      <div class="hero-content">
+        <div class="hero-badge">📍 Denizli · Tavas · Nikfer</div>
+        <h2>Nikfer Belleği</h2>
+        <p>Kasabamızın tarihi, kültürü ve insanları — dijital arşivde yaşıyor.</p>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-nufus">—</div>
+        <div class="stat-lbl">Kayıtlı Nüfus</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-muhtar">—</div>
+        <div class="stat-lbl">Muhtar/Bld Bşk.</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-sehit">—</div>
+        <div class="stat-lbl">Çanakkale Şehidi</div>
+      </div>
+    </div>
+    <div class="sec-title">Bölümler</div>
+    <div class="menu-grid" id="sections-grid">
+      <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
+    </div>
+    <!-- ÖĞNE ÇIKAN BÖLÜMLER -->
+    <div id="featured-wrap"></div>
+
+    <!-- SON YORUMLAR -->
+    <div id="recent-comments-wrap"></div>
+  </section>
+
+  <!-- KÜLTÜR -->
+  <section id="page-kultur" class="page">
+    <div class="sec-title">Dil & Kültür</div>
+    <div class="menu-grid">
+      <div class="menu-item" onclick="openSection('sozluk')"><i class="ti ti-book"></i><span>Nikferce Sözlük</span></div>
+      <div class="menu-item" onclick="openSection('bilmeceler')"><i class="ti ti-puzzle"></i><span>Bilmeceler</span></div>
+      <div class="menu-item" onclick="openSection('siir')"><i class="ti ti-feather"></i><span>Şiir & Türküler</span></div>
+      <div class="menu-item" onclick="openSection('nikferli-olmak')"><i class="ti ti-heart"></i><span>Nikferli Olmak</span></div>
+    </div>
+    <div class="sec-title">Sözlükten Örnekler</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="search-wrap"><i class="ti ti-search"></i><input type="text" id="mini-sozluk-q" placeholder="Sözcük ara..." oninput="filterMiniSozluk(this.value)"></div>
+        <div id="mini-sozluk-list"></div>
+        <div style="text-align:center;margin-top:10px">
+          <button onclick="openSection('sozluk')" style="background:none;border:1px solid var(--primary);color:var(--primary);border-radius:8px;padding:6px 16px;font-size:12px;cursor:pointer;font-weight:500">Tüm Sözlük →</button>
+        </div>
+      </div>
+    </div>
+    <div class="sec-title">Günün Bilmecesi</div>
+    <div id="gunun-bilmecesi-wrap"></div>
+  </section>
+
+  <!-- TARİH -->
+  <section id="page-tarih" class="page">
+    <div class="sec-title">Tarih & Hafıza</div>
+    <div class="menu-grid">
+      <div class="menu-item" onclick="openSection('koklere')"><i class="ti ti-crown"></i><span>Köklerimize Yolculuk</span></div>
+      <div class="menu-item" onclick="openSection('muhtarlar')"><i class="ti ti-building-community"></i><span>Muhtarlar</span></div>
+      <div class="menu-item" onclick="openSection('kronoloji')"><i class="ti ti-timeline"></i><span>Kronoloji</span></div>
+      <div class="menu-item" onclick="openSection('canakkale')"><i class="ti ti-flag"></i><span>Şehitlerimiz</span></div>
+    </div>
+    <div class="sec-title">Hızlı Bakış</div>
+    <div class="card">
+      <div class="card-body">
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">M.Ö. ~700</div><div class="tl-text">Lidya dönemi Deliktaş yapılır.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1365</div><div class="tl-text">Menteşe Beyliği'ne katılım.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1424</div><div class="tl-text">Osmanlı hâkimiyeti başlar.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1842</div><div class="tl-text">İlk muhtar Çolak Kâhya seçilir.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1954</div><div class="tl-text">Belediye kurulur.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1968</div><div class="tl-text">İlk 350 Nikferli Almanya'ya gider.</div></div>
+          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2005</div><div class="tl-text">Kasaba adı Nikfer olarak geri verilir.</div></div>
+        </div>
+        <button onclick="openSection('kronoloji')" style="background:none;border:1px solid var(--primary);color:var(--primary);border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;font-weight:500;width:100%;margin-top:6px">Tam Kronoloji →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOPLULUK -->
+  <section id="page-topluluk" class="page">
+    <div class="sec-title">Nikferli Sesi</div>
+    <div class="comment-form">
+      <h3><i class="ti ti-message-circle" style="color:var(--primary);margin-right:5px"></i>Anı veya yorum paylaş</h3>
+      <input class="form-input" id="c-name" placeholder="Adınız *">
+      <input class="form-input" id="c-note" placeholder="Kısa not (isteğe bağlı — örn. '1965 doğumlu')">
+      <!-- Bölüm seçimi — isteğe bağlı -->
+      <div style="position:relative;margin-bottom:8px">
+        <select class="form-input" id="c-section" style="appearance:none;-webkit-appearance:none;padding-right:32px;color:var(--text);cursor:pointer">
+          <option value="">📂 Hangi bölüm hakkında? (isteğe bağlı)</option>
+        </select>
+        <i class="ti ti-chevron-down" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none"></i>
+      </div>
+      <textarea class="form-input" id="c-text" placeholder="Nikfer'le ilgili bir anınızı veya düşüncenizi paylaşın..."></textarea>
+      <button class="form-btn" onclick="submitCommentUI()">
+        <i class="ti ti-send" style="margin-right:5px"></i>Paylaş
+      </button>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px">
+      <div class="sec-title" style="margin:0">Paylaşımlar</div>
+      <div style="position:relative">
+        <select id="c-filter" onchange="filterCommentsUI(this.value)"
+          style="appearance:none;-webkit-appearance:none;font-size:11px;border:1px solid var(--border);border-radius:8px;padding:5px 28px 5px 10px;background:var(--bg-card);color:var(--text-muted);cursor:pointer;outline:none">
+          <option value="">Tümü</option>
+        </select>
+        <i class="ti ti-filter" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--text-muted);pointer-events:none"></i>
+      </div>
+    </div>
+    <div id="comments-wrap">
+      <div class="loading"><div class="spinner"></div></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- BOTTOM NAV -->
+<nav class="bottom-nav">
+  <button class="nav-item active" onclick="showPage('home',this)"><i class="ti ti-home"></i><span>Ana Sayfa</span></button>
+  <button class="nav-item" onclick="showPage('kultur',this)"><i class="ti ti-book"></i><span>Kültür</span></button>
+  <button class="nav-item" onclick="showPage('tarih',this)"><i class="ti ti-timeline"></i><span>Tarih</span></button>
+  <button class="nav-item" onclick="showPage('topluluk',this)"><i class="ti ti-message-circle"></i><span>Topluluk</span></button>
+</nav>
+
+<!-- DETAIL OVERLAY -->
+<div id="detail-overlay" class="detail-page">
+  <div class="detail-header">
+    <button class="back-btn" onclick="closeDetail()">
+      <i class="ti ti-arrow-left"></i>
+    </button>
+    <h2 id="detail-title">—</h2>
+    <button class="header-btn" id="detail-share-btn" onclick="shareDetail()" title="Bu bölümü paylaş">
+      <i class="ti ti-share"></i>
+    </button>
+  </div>
+  <div class="detail-body" id="detail-body">
+    <div class="loading"><div class="spinner"></div></div>
+  </div>
+  <!-- Detail içinde Bottom Nav -->
+  <nav class="detail-nav visible" id="detail-bottom-nav">
+    <button class="nav-item" onclick="closeDetail()">
+      <i class="ti ti-arrow-left"></i>
+      <span>Geri</span>
+    </button>
+    <button class="nav-item" onclick="closeDetailGoHome()">
+      <i class="ti ti-home"></i>
+      <span>Ana Sayfa</span>
+    </button>
+    <button class="nav-item" onclick="closeDetailGoPage('kultur')">
+      <i class="ti ti-book"></i>
+      <span>Kültür</span>
+    </button>
+    <button class="nav-item" onclick="closeDetailGoPage('tarih')">
+      <i class="ti ti-timeline"></i>
+      <span>Tarih</span>
+    </button>
+    <button class="nav-item" onclick="closeDetailGoPage('topluluk')">
+      <i class="ti ti-message-circle"></i>
+      <span>Topluluk</span>
+    </button>
+  </nav>
+</div>
+
+<!-- LİGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()"><i class="ti ti-x"></i></button>
+  <button class="lightbox-nav lightbox-prev" id="lb-prev" onclick="lbNav(-1);event.stopPropagation()" disabled>
+    <i class="ti ti-chevron-left"></i>
+  </button>
+  <button class="lightbox-nav lightbox-next" id="lb-next" onclick="lbNav(1);event.stopPropagation()">
+    <i class="ti ti-chevron-right"></i>
+  </button>
+  <div class="lightbox-img-wrap" id="lb-img-wrap" onclick="event.stopPropagation()">
+    <img id="lightbox-img" src="" alt="">
+  </div>
+  <div class="lightbox-footer" onclick="event.stopPropagation()">
+    <div class="lightbox-caption" id="lightbox-caption"></div>
+    <div class="lightbox-dots" id="lb-dots"></div>
+    <div class="lightbox-counter" id="lb-counter"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import {
+  getSections, getSectionWithContent,
+  getFeaturedSections, getRecentComments,
+  getSiteSettings, getStatCounts,
+  getApprovedComments, submitComment,
+  subscribeComments
+} from './db.js';
+
+// ── CACHE ──────────────────────────────────────────────────
+const cache = {};
+let currentSlug   = null;
+let currentDetail = null;
+
+// ── INIT ───────────────────────────────────────────────────
+async function init() {
+  await loadSectionsGrid();
+  loadStats();
+  loadFeaturedSections();
+  loadRecentComments();
+  await loadComments();
+  loadMiniSozluk();
+  loadGununBilmecesi();
+  handleDeepLink();
+}
+
+// ── SECTIONS GRID ──────────────────────────────────────────
+// ── İSTATİSTİKLER ────────────────────────────────────────────
+async function loadStats() {
+  try {
+    // Paralel çek
+    const [settings, counts] = await Promise.all([
+      getSiteSettings(),
+      getStatCounts(),
+    ]);
+
+    // Nüfus — admin'den düzenlenebilir
+    const nufusEl = document.getElementById('stat-nufus');
+    if (nufusEl) {
+      const nufus = settings['nufus']?.value || '—';
+      nufusEl.textContent = Number(nufus).toLocaleString('tr-TR');
+    }
+
+    // Muhtar sayısı — otomatik
+    const muhtarEl = document.getElementById('stat-muhtar');
+    if (muhtarEl) muhtarEl.textContent = counts.muhtarCount || '—';
+
+    // Şehit sayısı — otomatik
+    const sehitEl = document.getElementById('stat-sehit');
+    if (sehitEl) sehitEl.textContent = counts.sehitCount || '—';
+
+  } catch(e) {
+    // Hata durumunda sabit değerleri göster
+    const fallbacks = {
+      'stat-nufus':  '5.250',
+      'stat-muhtar': '15',
+      'stat-sehit':  '12',
+    };
+    Object.entries(fallbacks).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = val;
+    });
+  }
+}
+
+// ── ÖĞNE ÇIKAN BÖLÜMLER ──────────────────────────────────────
+async function loadFeaturedSections() {
+  const wrap = document.getElementById('featured-wrap');
+  if (!wrap) return;
+  try {
+    const sections = await getFeaturedSections();
+    if (!sections.length) {
+      wrap.innerHTML = '';
+      return;
+    }
+    wrap.innerHTML = `
+      <div class="sec-title" style="margin-top:16px">
+        <i class="ti ti-star" style="color:var(--accent);margin-right:5px;font-size:13px"></i>
+        Öne Çıkan Bölümler
+      </div>
+      <div class="menu-grid" style="margin-bottom:0">
+        ${sections.map(s => `
+          <div class="menu-item" onclick="openSection('${s.slug}')">
+            <i class="ti ti-${s.icon || 'book'}"></i>
+            <span>${s.title}</span>
+          </div>`).join('')}
+      </div>`;
+  } catch(e) {
+    wrap.innerHTML = '';
+  }
+}
+
+// ── SON YORUMLAR ──────────────────────────────────────────────
+async function loadRecentComments() {
+  const wrap = document.getElementById('recent-comments-wrap');
+  if (!wrap) return;
+  try {
+    const comments = await getRecentComments(3);
+    if (!comments.length) {
+      wrap.innerHTML = '';
+      return;
+    }
+    wrap.innerHTML = `
+      <div class="sec-title" style="margin-top:16px">
+        <i class="ti ti-message-circle" style="color:var(--primary);margin-right:5px;font-size:13px"></i>
+        Son Paylaşımlar
+      </div>
+      <div class="card">
+        <div class="card-body" style="padding:0 14px">
+          ${comments.map(c => {
+            const date    = new Date(c.created_at).toLocaleDateString('tr-TR');
+            const section = c.sections;
+            return `<div class="list-item" style="cursor:default">
+              <div class="list-icon">
+                <i class="ti ti-${section?.icon || 'message-circle'}"></i>
+              </div>
+              <div style="flex:1;min-width:0">
+                <div class="list-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                  ${c.author_name}
+                  ${section ? `<span style="font-size:10px;font-weight:400;color:var(--text-muted);margin-left:5px">${section.title}</span>` : ''}
+                </div>
+                <div class="list-sub" style="overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal">
+                  ${c.content}
+                </div>
+                <div style="font-size:10px;color:var(--text-muted);margin-top:3px">${date}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  } catch(e) {
+    wrap.innerHTML = '';
+  }
+}
+
+async function loadSectionsGrid() {
+  try {
+    const sections = await getSections();
+    cache.sections = sections;
+    const grid = document.getElementById('sections-grid');
+    grid.innerHTML = sections.map(s => `
+      <div class="menu-item" onclick="openSection('${s.slug}')">
+        <i class="ti ti-${s.icon || 'book'}"></i>
+        <span>${s.title}</span>
+      </div>`).join('');
+  } catch (e) {
+    document.getElementById('sections-grid').innerHTML =
+      `<div class="error-msg" style="grid-column:1/-1">Bölümler yüklenemedi: ${e.message}</div>`;
+  }
+}
+
+// ── OPEN SECTION ───────────────────────────────────────────
+window.openSection = async function(slug) {
+  currentSlug = slug;
+  const overlay = document.getElementById('detail-overlay');
+  const body    = document.getElementById('detail-body');
+  const title   = document.getElementById('detail-title');
+
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  body.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+  try {
+    const data = cache[slug] || await getSectionWithContent(slug);
+    cache[slug] = data;
+
+    title.textContent = data.section.title;
+    if (data.section.subtitle) {
+      title.innerHTML = `${data.section.title}<br><small style="font-weight:400;font-size:11px;opacity:.8">${data.section.subtitle}</small>`;
+    }
+
+    body.innerHTML = renderSection(data);
+    initBilmeceBtns();
+    // Deep link
+    history.pushState({ slug }, '', `#${slug}`);
+  } catch (e) {
+    body.innerHTML = `<div class="error-msg">İçerik yüklenemedi: ${e.message}</div>`;
+  }
+};
+
+window.closeDetail = function() {
+  document.getElementById('detail-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+  history.pushState({}, '', window.location.pathname);
+  currentSlug = null;
+};
+
+window.closeDetailGoHome = function() {
+  closeDetail();
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-home').classList.add('active');
+  document.querySelector('.bottom-nav .nav-item:first-child').classList.add('active');
+};
+
+window.closeDetailGoPage = function(pageId) {
+  closeDetail();
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+  const navMap = {home:0, kultur:1, tarih:2, topluluk:3};
+  const idx = navMap[pageId] ?? 0;
+  document.querySelectorAll('.bottom-nav .nav-item')[idx]?.classList.add('active');
+};
+
+// ── RENDER SECTION ─────────────────────────────────────────
+function renderSection(data) {
+  const { section, blocks, audio, links, gallery } = data;
+  let html = '';
+
+  // Tablo başlıkları (slug'a göre)
+  const tableHeaders = {
+    muhtarlar: ['#','Ad / Lakap','Dönem','Doğum','Ölüm'],
+    canakkale: null, // Özel kart render kullanılacak
+  };
+
+  // Blokları türe göre gruplama
+  let tableRows = [];
+  let infoRows  = [];
+
+  for (const b of blocks) {
+    // Tablo satırlarını topla, sonra tek tablo yap
+    if (b.type === 'table_row') {
+      tableRows.push(b);
+      continue;
+    }
+    // info_row'ları topla
+    if (b.type === 'info_row') {
+      infoRows.push(b);
+      continue;
+    }
+    // Önceki tablo varsa kapat
+    if (tableRows.length) {
+      html += renderTable(tableRows, tableHeaders[section.slug]);
+      tableRows = [];
+    }
+    if (infoRows.length) {
+      html += renderInfoRows(infoRows);
+      infoRows = [];
+    }
+    html += renderBlock(b);
+  }
+  // Kapanmamış tablo/info
+  if (tableRows.length) html += renderTable(tableRows, tableHeaders[section.slug]);
+  if (infoRows.length)  html += renderInfoRows(infoRows);
+
+  // Audio
+  if (audio.length) {
+    html += `<div class="blk-heading"><i class="ti ti-volume" style="margin-right:6px;font-size:14px"></i>Sesli Anlatım</div>`;
+    html += `<div class="audio-section">`;
+    audio.forEach(a => {
+      html += `<div class="audio-item">
+        <div class="audio-title"><i class="ti ti-music" style="margin-right:5px;color:var(--primary)"></i>${a.title}</div>
+        <audio controls preload="none">
+          <source src="${a.file_url}" type="audio/mpeg">
+          Tarayıcınız ses oynatmayı desteklemiyor.
+        </audio>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Gallery
+  if (gallery.length) {
+    html += `<div class="blk-heading"><i class="ti ti-photo" style="margin-right:6px;font-size:14px"></i>Fotoğraflar <span style="font-size:11px;font-weight:400;opacity:.7">(${gallery.length} fotoğraf)</span></div>`;
+    html += `<div class="gallery-grid">`;
+    // Maksimum 8 thumbnail göster, fazlası "+N daha" olarak
+    const MAX_THUMB = 8;
+    gallery.slice(0, MAX_THUMB).forEach((g, idx) => {
+      const isLast  = idx === MAX_THUMB - 1 && gallery.length > MAX_THUMB;
+      const remaining = gallery.length - MAX_THUMB;
+      html += `<div style="text-align:center">
+        <div class="gallery-thumb" data-url="${g.file_url}" data-caption="${(g.caption||'').replace(/"/g,'&quot;')}"
+          onclick="openLightbox('${g.file_url}','${(g.caption||'').replace(/'/g,"\\'")}')">
+          <img class="gallery-img" src="${g.file_url}" alt="${g.title||''}" loading="lazy">
+          ${isLast ? `<div class="gallery-thumb-count">+${remaining}</div>` : ''}
+        </div>
+        ${g.caption ? `<div class="gallery-caption" title="${g.caption}">${g.caption}</div>` : ''}
+      </div>`;
+    });
+    html += `</div>`;
+    // Tümünü gör butonu (8'den fazla fotoğraf varsa)
+    if (gallery.length > MAX_THUMB) {
+      html += `<button onclick="openAllGallery(this)" data-section-id="${section.id}"
+        style="background:none;border:1px solid var(--border);color:var(--primary);border-radius:8px;padding:6px 14px;font-size:12px;cursor:pointer;margin-top:4px;width:100%">
+        <i class="ti ti-photo" style="margin-right:4px"></i>Tümünü Gör (${gallery.length} fotoğraf)
+      </button>`;
+    }
+  }
+
+  // Links
+  if (links.length) {
+    html += `<div class="blk-heading"><i class="ti ti-link" style="margin-right:6px;font-size:14px"></i>Kaynaklar & Linkler</div>`;
+    const iconMap = { newspaper:'news', external:'external-link', document:'file', video:'player-play' };
+    links.forEach(l => {
+      html += `<a class="link-item" href="${l.url}" target="_blank" rel="noopener">
+        <div class="link-icon"><i class="ti ti-${iconMap[l.link_type]||'external-link'}"></i></div>
+        <div>
+          <div class="link-title">${l.title}</div>
+          ${l.description ? `<div class="link-desc">${l.description}</div>` : ''}
+        </div>
+        <i class="ti ti-arrow-up-right" style="margin-left:auto;color:var(--text-muted);font-size:14px"></i>
+      </a>`;
+    });
+  }
+
+  // Topluluk yorumları — comments_enabled kontrolü
+  if (section.comments_enabled !== false) {
+    html += `<div class="blk-heading" style="margin-top:24px">
+      <i class="ti ti-message-circle" style="margin-right:6px;font-size:14px"></i>Bu bölüme yorumlar
+    </div>`;
+    // Yorum formu
+    html += `<div style="margin-bottom:12px">
+      <input class="form-input" id="sc-name-${section.id}" placeholder="Adınız *"
+        style="width:100%;border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;margin-bottom:8px">
+      <textarea class="form-input" id="sc-text-${section.id}" rows="3"
+        placeholder="Bu bölüm hakkında bir anınızı veya düşüncenizi paylaşın..."
+        style="width:100%;border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13px;font-family:inherit;color:var(--text);background:var(--bg);outline:none;resize:none;min-height:72px;margin-bottom:8px"></textarea>
+      <button onclick="submitSectionComment('${section.id}')"
+        style="background:var(--primary);color:#FFF;border:none;border-radius:9px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;width:100%">
+        <i class="ti ti-send" style="margin-right:5px"></i>Yorum Yap
+      </button>
+    </div>`;
+    html += `<div id="section-comments-${section.id}"><div class="loading"><div class="spinner"></div></div></div>`;
+    // Async yorum yükle
+    setTimeout(() => loadSectionComments(section.id), 100);
+  } else {
+    html += `<div style="background:rgba(139,69,19,.05);border-radius:10px;padding:12px 14px;margin-top:20px;display:flex;align-items:center;gap:8px">
+      <i class="ti ti-message-off" style="color:var(--text-muted);font-size:18px"></i>
+      <span style="font-size:12px;color:var(--text-muted)">Bu bölüm için yorum kapalıdır.</span>
+    </div>`;
+  }
+
+  return html;
+}
+
+function renderBlock(b) {
+  const m = b.meta || {};
+  switch (b.type) {
+    case 'paragraph':
+      return `<p class="blk-paragraph">${b.content}</p>`;
+    case 'heading':
+      return `<div class="blk-heading">${b.content}</div>`;
+    case 'quote':
+      return `<div class="blk-quote">${b.content}${m.author ? `<div class="blk-quote-author">— ${m.author}</div>` : ''}</div>`;
+    case 'poem':
+      return `<div class="blk-poem">${b.content}${m.author ? `<div class="blk-poem-author">— ${m.author}</div>` : ''}</div>`;
+    case 'note':
+      return `<div class="blk-note"><i class="ti ti-info-circle" style="margin-right:4px"></i>${b.content}</div>`;
+    case 'list_item':
+      if (m.answer !== undefined) {
+        // Bilmece
+        const bid = `b-${b.id}`;
+        return `<div class="blk-list-item bilmece" data-bid="${bid}">
+          <div class="bilmece-q">${b.content}</div>
+          <div class="bilmece-a" id="${bid}">Cevap: ${m.answer}</div>
+          <button class="bilmece-btn" onclick="toggleBilmece('${bid}',this)">Cevabı gör</button>
+        </div>`;
+      }
+      if (m.desc) {
+        // İsim listesi (Işık Saçanlar)
+        return `<div class="blk-list-item" style="flex-direction:column;gap:2px">
+          <span style="font-weight:600">${b.content}</span>
+          <span style="font-size:11px;color:var(--text-muted)">${m.desc}</span>
+        </div>`;
+      }
+      return `<div class="blk-list-item">${b.content}</div>`;
+    case 'divider':
+      return `<hr class="blk-divider">`;
+    default:
+      return '';
+  }
+}
+
+function renderTable(rows, headers) {
+  // headers null ise kart formatında render et (Çanakkale gibi geniş tablolar)
+  if (headers === null) {
+    return renderCardsFromTable(rows);
+  }
+
+  const cols = rows[0]?.meta?.cols || [];
+  const colCount = cols.length;
+  let th = headers
+    ? headers.map(h => `<th>${h}</th>`).join('')
+    : Array(colCount).fill('').map((_,i) => `<th>${i}</th>`).join('');
+
+  return `<div class="tbl-wrap"><table class="tbl"><thead><tr>${th}</tr></thead><tbody>
+    ${rows.map(r => `<tr>${(r.meta.cols||[]).map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+// Geniş tablolar için kart formatı — mobilde taşmaz
+function renderCardsFromTable(rows) {
+  return `<div style="display:flex;flex-direction:column;gap:8px;margin:12px 0">
+    ${rows.map(r => {
+      const c = r.meta.cols || [];
+      // cols: [no, ad, baba, lakap, dogum, tarih, yer, birlik]
+      const [no, ad, baba, lakap, dogum, tarih, yer, birlik] = c;
+      return `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;position:relative">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
+          <div>
+            <span style="font-size:15px;font-weight:700;color:var(--text)">${ad || '—'}</span>
+            <span style="font-size:12px;color:var(--text-muted);margin-left:5px">${baba ? baba + ' oğlu' : ''}</span>
+          </div>
+          <span style="background:rgba(139,20,20,.08);color:#8B1A1A;font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;flex-shrink:0;margin-left:8px">${no || ''}</span>
+        </div>
+        ${lakap && lakap !== '—' ? `<div style="font-size:11px;color:var(--text-muted);margin-bottom:6px;font-style:italic">${lakap}</div>` : ''}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px">
+          ${tarih ? `<div style="font-size:11px"><span style="color:var(--text-muted)">Tarih: </span><span style="font-weight:500;color:#8B1A1A">${tarih}</span></div>` : ''}
+          ${dogum ? `<div style="font-size:11px"><span style="color:var(--text-muted)">Doğum: </span><span>${dogum}</span></div>` : ''}
+          ${yer && yer !== '—' ? `<div style="font-size:11px;grid-column:1/-1"><span style="color:var(--text-muted)">Yer: </span><span>${yer}</span></div>` : ''}
+          ${birlik ? `<div style="font-size:11px;grid-column:1/-1"><span style="color:var(--text-muted)">Birlik: </span><span>${birlik}</span></div>` : ''}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function renderInfoRows(rows) {
+  return `<div>
+    ${rows.map(r => `<div class="blk-info-row"><span class="blk-info-key">${r.content}</span><span class="blk-info-val">${r.meta.value||'—'}</span></div>`).join('')}
+  </div>`;
+}
+
+// ── BİLMECE ───────────────────────────────────────────────
+window.toggleBilmece = function(id, btn) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('open');
+  btn.textContent = el.classList.contains('open') ? 'Gizle' : 'Cevabı gör';
+};
+function initBilmeceBtns() {} // hooks handled via onclick in HTML
+
+// ── MİNİ SÖZLÜK ───────────────────────────────────────────
+let allSozluk = [];
+
+async function loadMiniSozluk() {
+  try {
+    const data = await getSectionWithContent('sozluk');
+    allSozluk = data.blocks.filter(b => b.type === 'info_row');
+    renderMiniSozluk(allSozluk.slice(0, 8));
+  } catch(e) {}
+}
+
+function renderMiniSozluk(items) {
+  document.getElementById('mini-sozluk-list').innerHTML =
+    items.map(b => `<div class="blk-info-row">
+      <span class="blk-info-key" style="font-weight:600;color:var(--primary)">${b.content}</span>
+      <span class="blk-info-val">${b.meta.value||''}</span>
+    </div>`).join('');
+}
+
+window.filterMiniSozluk = function(q) {
+  const filtered = q
+    ? allSozluk.filter(b =>
+        b.content.toLowerCase().includes(q.toLowerCase()) ||
+        (b.meta.value||'').toLowerCase().includes(q.toLowerCase())
+      )
+    : allSozluk.slice(0, 8);
+  renderMiniSozluk(filtered.slice(0, 8));
+};
+
+// ── GÜNÜN BİLMECESİ ───────────────────────────────────────
+async function loadGununBilmecesi() {
+  try {
+    const data = await getSectionWithContent('bilmeceler');
+    const items = data.blocks.filter(b => b.type === 'list_item' && b.meta.answer);
+    const b = items[Math.floor(Math.random() * items.length)];
+    if (!b) return;
+    const bid = `gb-${b.id}`;
+    document.getElementById('gunun-bilmecesi-wrap').innerHTML = `
+      <div class="card"><div class="card-body">
+        <div style="font-size:10px;font-weight:600;color:var(--text-muted);margin-bottom:6px">GÜNÜN BİLMECESİ</div>
+        <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:10px;line-height:1.5">${b.content}</div>
+        <div class="bilmece-a" id="${bid}">Cevap: ${b.meta.answer}</div>
+        <button class="bilmece-btn" onclick="toggleBilmece('${bid}',this)">Cevabı gör</button>
+      </div></div>`;
+  } catch(e) {}
+}
+
+// ── COMMENTS ──────────────────────────────────────────────
+async function loadComments() {
+  try {
+    const comments = await getApprovedComments();
+    _allComments = comments;
+    renderComments(comments, 'comments-wrap');
+    populateCommentSelects(comments);
+  } catch(e) {
+    document.getElementById('comments-wrap').innerHTML =
+      `<div class="error-msg">Yorumlar yüklenemedi.</div>`;
+  }
+}
+
+function populateCommentSelects(comments) {
+  // Bölüm seçim dropdown'larını doldur
+  const sections = cache.sections || [];
+  if (!sections.length) return;
+
+  const sectionOpts = sections.map(s =>
+    `<option value="${s.id}">${s.title}</option>`
+  ).join('');
+
+  // Yorum formu dropdown
+  const cSection = document.getElementById('c-section');
+  if (cSection) {
+    cSection.innerHTML =
+      '<option value="">📂 Hangi bölüm hakkında? (isteğe bağlı)</option>' + sectionOpts;
+  }
+
+  // Filtre dropdown — sadece yorumu olan bölümleri göster
+  const sectionIdsWithComments = [...new Set(comments.map(c => c.section_id).filter(Boolean))];
+  const filterOpts = sections
+    .filter(s => sectionIdsWithComments.includes(s.id))
+    .map(s => {
+      const count = comments.filter(c => c.section_id === s.id).length;
+      return `<option value="${s.id}">${s.title} (${count})</option>`;
+    }).join('');
+
+  const cFilter = document.getElementById('c-filter');
+  if (cFilter) {
+    cFilter.innerHTML = `<option value="">Tümü (${comments.length})</option>` + filterOpts;
+  }
+}
+
+async function loadSectionComments(sectionId) {
+  const el = document.getElementById(`section-comments-${sectionId}`);
+  if (!el) return;
+  try {
+    const comments = await getApprovedComments(sectionId);
+    el.innerHTML = comments.length
+      ? comments.map(c => commentHTML(c)).join('')
+      : `<div style="font-size:12px;color:var(--text-muted);padding:10px 0">Bu bölüm için henüz yorum yok. İlk yorumu siz yazın!</div>`;
+  } catch(e) {
+    el.innerHTML = `<div class="error-msg">Yüklenemedi.</div>`;
+  }
+}
+
+function renderComments(list, containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (!list.length) {
+    el.innerHTML = `<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:20px">Henüz paylaşım yok. İlk yorumu siz yazın!</div>`;
+    return;
+  }
+  el.innerHTML = list.map(c => commentHTML(c)).join('');
+}
+
+function commentHTML(c) {
+  const date = new Date(c.created_at).toLocaleDateString('tr-TR');
+  // Bölüm adını cache.sections'dan bul
+  const section = (cache.sections || []).find(s => s.id === c.section_id);
+  const sectionTag = section
+    ? `<span style="display:inline-block;background:rgba(139,69,19,.08);color:var(--primary);font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;margin-bottom:6px">
+        <i class="ti ti-book" style="font-size:11px;margin-right:3px"></i>${section.title}
+       </span>`
+    : '';
+  return `<div class="comment-item">
+    <div class="comment-meta">
+      <span class="comment-name">${c.author_name}${c.is_pinned ? ' <span class="pinned-badge">Öne Çıkan</span>' : ''}</span>
+      <span class="comment-date">${date}</span>
+    </div>
+    ${c.author_note ? `<div class="comment-note">${c.author_note}</div>` : ''}
+    ${sectionTag}
+    <div class="comment-text">${c.content}</div>
+  </div>`;
+}
+
+// Bölüm detayından doğrudan yorum gönder
+window.submitSectionComment = async function(sectionId) {
+  const nameEl = document.getElementById(`sc-name-${sectionId}`);
+  const textEl = document.getElementById(`sc-text-${sectionId}`);
+  if (!nameEl || !textEl) return;
+  const name = nameEl.value.trim();
+  const text = textEl.value.trim();
+  if (!name || !text) { showToast('Lütfen adınızı ve yorumunuzu girin.'); return; }
+  try {
+    await submitComment({ sectionId, authorName: name, authorNote: '', content: text });
+    nameEl.value = '';
+    textEl.value = '';
+    showToast('Yorumunuz alındı. Admin onayından sonra yayınlanacak.');
+  } catch(e) {
+    showToast('Hata: ' + e.message);
+  }
+};
+
+window.submitCommentUI = async function() {
+  const name      = document.getElementById('c-name').value.trim();
+  const note      = document.getElementById('c-note').value.trim();
+  const text      = document.getElementById('c-text').value.trim();
+  const sectionId = document.getElementById('c-section').value || null;
+  if (!name || !text) { showToast('Lütfen adınızı ve yorumunuzu girin.'); return; }
+
+  try {
+    await submitComment({ sectionId, authorName: name, authorNote: note, content: text });
+    document.getElementById('c-name').value    = '';
+    document.getElementById('c-note').value    = '';
+    document.getElementById('c-text').value    = '';
+    document.getElementById('c-section').value = '';
+    showToast('Yorumunuz alındı. Admin onayından sonra yayınlanacak.');
+  } catch(e) {
+    showToast('Hata: ' + e.message);
+  }
+};
+
+// Bölüme göre filtrele
+let _allComments = [];
+window.filterCommentsUI = async function(sectionId) {
+  const filtered = sectionId
+    ? _allComments.filter(c => c.section_id === sectionId)
+    : _allComments;
+  renderComments(filtered, 'comments-wrap');
+};
+
+// ── NAVİGASYON ────────────────────────────────────────────
+window.showPage = function(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+};
+
+// ── DEEP LINK ─────────────────────────────────────────────
+function handleDeepLink() {
+  const hash = window.location.hash.replace('#', '');
+  if (hash) openSection(hash);
+  window.addEventListener('popstate', e => {
+    if (e.state?.slug) openSection(e.state.slug);
+    else closeDetail();
+  });
+}
+
+// ── LIGHTBOX ──────────────────────────────────────────────
+// ── LIGHTBOX GALERİ ───────────────────────────────────────────
+let _lbImages  = [];   // {url, caption} dizisi
+let _lbIndex   = 0;    // aktif fotoğraf indexi
+
+// Tek fotoğraf aç (eski çağrılar için)
+window.openLightbox = function(src, caption) {
+  // Sayfadaki tüm thumb'ları topla
+  const thumbs = [...document.querySelectorAll('.gallery-thumb[data-url]')];
+  if (thumbs.length) {
+    _lbImages = thumbs.map(t => ({ url: t.dataset.url, caption: t.dataset.caption || '' }));
+    const idx  = _lbImages.findIndex(i => i.url === src);
+    _lbIndex   = idx >= 0 ? idx : 0;
+  } else {
+    _lbImages = [{ url: src, caption: caption || '' }];
+    _lbIndex  = 0;
+  }
+  lbShow(_lbIndex);
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+window.closeLightbox = function() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.getElementById('lightbox-img').src = '';
+  document.body.style.overflow = '';
+};
+
+// İleri / geri
+window.lbNav = function(dir) {
+  const next = _lbIndex + dir;
+  if (next < 0 || next >= _lbImages.length) return;
+  lbShow(next);
+};
+
+function lbShow(idx) {
+  _lbIndex = idx;
+  const img  = document.getElementById('lightbox-img');
+  const cap  = document.getElementById('lightbox-caption');
+  const prev = document.getElementById('lb-prev');
+  const next = document.getElementById('lb-next');
+  const ctr  = document.getElementById('lb-counter');
+  const dots = document.getElementById('lb-dots');
+
+  // Fade animasyonu
+  img.classList.add('fade');
+  setTimeout(() => {
+    img.src = _lbImages[idx].url;
+    img.onload = () => img.classList.remove('fade');
+  }, 150);
+
+  if (cap) cap.textContent = _lbImages[idx].caption || '';
+
+  // Ok butonları
+  if (prev) prev.disabled = idx === 0;
+  if (next) next.disabled = idx === _lbImages.length - 1;
+
+  // Sayaç
+  if (ctr && _lbImages.length > 1) {
+    ctr.textContent = `${idx + 1} / ${_lbImages.length}`;
+  }
+
+  // Dot'lar (max 12 göster)
+  if (dots && _lbImages.length > 1) {
+    const maxDots = 12;
+    if (_lbImages.length <= maxDots) {
+      dots.innerHTML = _lbImages.map((_, i) =>
+        `<button class="lightbox-dot${i===idx?' active':''}" onclick="lbShow(${i});event.stopPropagation()"></button>`
+      ).join('');
+    } else {
+      dots.innerHTML = '';
+    }
+  }
+}
+
+// Klavye desteği
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'ArrowLeft')  lbNav(-1);
+  if (e.key === 'ArrowRight') lbNav(1);
+  if (e.key === 'Escape')     closeLightbox();
+});
+
+// Swipe desteği (dokunmatik)
+(function() {
+  let startX = 0;
+  const wrap = document.getElementById('lb-img-wrap');
+  if (!wrap) return;
+  wrap.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive:true });
+  wrap.addEventListener('touchend',   e => {
+    const diff = startX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) lbNav(diff > 0 ? 1 : -1);
+  });
+})();
+
+// Tüm fotoğrafları aç (thumbnail grid'den)
+window.openAllGallery = function(btn) {
+  const thumbs = [...document.querySelectorAll('.gallery-thumb[data-url]')];
+  if (!thumbs.length) return;
+  _lbImages = thumbs.map(t => ({ url: t.dataset.url, caption: t.dataset.caption || '' }));
+  _lbIndex  = 0;
+  lbShow(0);
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+
+// ── SHARE ─────────────────────────────────────────────────
+window.shareApp = function() {
+  const data = { title: 'Nikfer Belleği', text: 'Nikfer kasabasının dijital bellek arşivi', url: window.location.href };
+  if (navigator.share) navigator.share(data);
+  else navigator.clipboard?.writeText(data.url).then(() => showToast('Bağlantı kopyalandı!'));
+};
+window.shareDetail = function() {
+  const url = window.location.href;
+  if (navigator.share) navigator.share({ title: document.getElementById('detail-title').textContent, url });
+  else navigator.clipboard?.writeText(url).then(() => showToast('Bağlantı kopyalandı!'));
+};
+
+// ── TOAST ─────────────────────────────────────────────────
+window.showToast = function(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+};
+
+// ── SERVICE WORKER ────────────────────────────────────────
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,1601 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%27.9em%27 font-size=%2790%27>🏡</text></svg>">
+<title>Nikfer Belleği — Admin</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#8B4513;--primary-light:#A0522D;--primary-dark:#5C2E0A;
+  --accent:#D4A853;--bg:#F5F0EA;--bg-card:#FFF;
+  --text:#2C1A0A;--text-muted:#7A5C3A;
+  --border:rgba(139,69,19,.15);--radius:12px;
+  --danger:#C0392B;--success:#27AE60;--info:#2980B9;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-box{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:32px;width:100%;max-width:380px;box-shadow:0 4px 24px rgba(139,69,19,.12)}
+.login-logo{text-align:center;margin-bottom:24px}
+.login-logo h1{font-size:22px;font-weight:700;color:var(--primary)}
+.login-logo p{font-size:12px;color:var(--text-muted);margin-top:4px}
+
+/* LAYOUT */
+.admin-wrap{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--primary);padding:0;flex-shrink:0;position:fixed;left:0;top:0;bottom:0;overflow-y:auto;z-index:100}
+.sidebar-logo{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-logo h2{color:#FFF;font-size:15px;font-weight:600}
+.sidebar-logo p{color:rgba(255,255,255,.6);font-size:10px;margin-top:2px}
+.sidebar-nav{padding:12px 0}
+.nav-group-title{color:rgba(255,255,255,.4);font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;padding:10px 18px 4px}
+.nav-link{display:flex;align-items:center;gap:10px;padding:9px 18px;color:rgba(255,255,255,.8);font-size:13px;font-weight:500;cursor:pointer;border:none;background:none;width:100%;text-align:left;transition:background .15s}
+.nav-link:hover,.nav-link.active{background:rgba(255,255,255,.12);color:#FFF}
+.nav-link i{font-size:18px}
+.sidebar-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,.1);margin-top:auto}
+
+.admin-main{margin-left:240px;padding:24px;min-height:100vh}
+.panel{display:none}
+.panel.active{display:block}
+
+/* HEADER */
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.panel-title{font-size:20px;font-weight:700;color:var(--text)}
+.panel-subtitle{font-size:12px;color:var(--text-muted);margin-top:2px}
+
+/* CARDS */
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px}
+.card-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-header h3{font-size:14px;font-weight:600;color:var(--text)}
+.card-body{padding:16px}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-box{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;text-align:center}
+.stat-box .num{font-size:28px;font-weight:700;color:var(--primary)}
+.stat-box .lbl{font-size:11px;color:var(--text-muted);margin-top:4px}
+
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;padding:9px 12px;border-bottom:2px solid var(--border);font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px}
+.data-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(139,69,19,.03)}
+.tbl-wrap{overflow-x:auto}
+
+/* BADGES */
+.badge{display:inline-block;padding:3px 9px;border-radius:10px;font-size:10px;font-weight:600}
+.badge-green{background:rgba(39,174,96,.12);color:#1E8449}
+.badge-red{background:rgba(192,57,43,.12);color:#922B21}
+.badge-yellow{background:rgba(212,168,83,.2);color:#7D6608}
+.badge-blue{background:rgba(41,128,185,.12);color:#1A5276}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:none;transition:.15s}
+.btn-primary{background:var(--primary);color:#FFF}
+.btn-primary:hover{background:var(--primary-light)}
+.btn-danger{background:var(--danger);color:#FFF}
+.btn-danger:hover{opacity:.88}
+.btn-ghost{background:none;border:1px solid var(--border);color:var(--text)}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn-success{background:var(--success);color:#FFF}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-icon{width:32px;height:32px;padding:0;justify-content:center}
+
+/* FORMS */
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:5px}
+.form-control{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;color:var(--text);background:var(--bg);outline:none;font-family:inherit}
+.form-control:focus{border-color:var(--primary)}
+textarea.form-control{resize:vertical;min-height:90px}
+select.form-control{cursor:pointer}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-hint{font-size:10px;color:var(--text-muted);margin-top:3px}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg-card);border-radius:16px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(0,0,0,.2)}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg-card);z-index:10}
+.modal-header h3{font-size:15px;font-weight:600;color:var(--text)}
+.modal-close{background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-muted)}
+.modal-body{padding:20px}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
+
+/* ALERT */
+.alert{padding:10px 14px;border-radius:8px;font-size:12px;margin-bottom:12px}
+.alert-success{background:rgba(39,174,96,.1);color:#1E8449;border:1px solid rgba(39,174,96,.2)}
+.alert-danger{background:rgba(192,57,43,.1);color:#922B21;border:1px solid rgba(192,57,43,.2)}
+
+/* UPLOAD ZONE */
+.upload-zone{border:2px dashed var(--border);border-radius:10px;padding:24px;text-align:center;cursor:pointer;transition:.15s}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--primary);background:rgba(139,69,19,.03)}
+.upload-zone i{font-size:32px;color:var(--text-muted);margin-bottom:8px}
+.upload-zone p{font-size:12px;color:var(--text-muted)}
+
+/* LOADING */
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-row{text-align:center;padding:30px;color:var(--text-muted);font-size:13px}
+/* Quill Editor Özelleştirme */
+.quill-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fff}
+.quill-wrap .ql-toolbar{border:none;border-bottom:1px solid var(--border);background:#faf7f2;padding:6px 8px;flex-wrap:wrap}
+.quill-wrap .ql-toolbar .ql-formats{margin-right:8px}
+.quill-wrap .ql-container{border:none;font-size:13px;min-height:120px;max-height:320px;overflow-y:auto}
+.quill-wrap .ql-editor{padding:10px 12px;line-height:1.8;color:var(--text)}
+.quill-wrap .ql-editor p{margin-bottom:6px}
+#block-content{display:none}
+.plain-editor{display:block}
+.quill-wrap{display:none}
+.show-quill .quill-wrap{display:block}
+.show-quill #block-content-plain{display:none}
+
+/* MOBILE RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{width:200px}
+  .admin-main{margin-left:200px;padding:14px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-page" class="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">
+      <div style="font-size:40px;margin-bottom:8px">🏡</div>
+      <h1>Nikfer Belleği</h1>
+      <p>Admin Paneli</p>
+    </div>
+    <div id="login-alert"></div>
+    <div class="form-group">
+      <label class="form-label">E-posta</label>
+      <input class="form-control" type="email" id="login-email" placeholder="admin@nikfer.com" autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Şifre</label>
+      <input class="form-control" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px" onclick="doLogin()">
+      <i class="ti ti-login"></i> Giriş Yap
+    </button>
+  </div>
+</div>
+
+<!-- ADMIN WRAP -->
+<div id="admin-wrap" class="admin-wrap" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h2>🏡 Nikfer Belleği</h2>
+      <p>Admin Paneli</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-group-title">Genel</div>
+      <button class="nav-link active" onclick="showPanel('dashboard',this)"><i class="ti ti-dashboard"></i>Kontrol Paneli</button>
+      <button class="nav-link" onclick="showPanel('sections',this)"><i class="ti ti-layout-list"></i>Bölümler</button>
+
+      <div class="nav-group-title">İçerik</div>
+      <button class="nav-link" onclick="showPanel('content',this)"><i class="ti ti-file-text"></i>İçerik Blokları</button>
+      <button class="nav-link" onclick="showPanel('audio',this)"><i class="ti ti-music"></i>Ses Dosyaları</button>
+      <button class="nav-link" onclick="showPanel('gallery',this)"><i class="ti ti-photo"></i>Fotoğraflar</button>
+      <button class="nav-link" onclick="showPanel('links',this)"><i class="ti ti-link"></i>Linkler</button>
+
+      <div class="nav-group-title">Topluluk</div>
+      <button class="nav-link" onclick="showPanel('comments',this)">
+        <i class="ti ti-message-circle"></i>Yorumlar
+        <span id="pending-badge" style="margin-left:auto;background:var(--danger);color:#FFF;font-size:10px;padding:2px 7px;border-radius:10px;display:none"></span>
+      </button>
+    </nav>
+      <div class="nav-group-title">Sistem</div>
+      <button class="nav-link" onclick="showPanel('settings',this)"><i class="ti ti-settings"></i>Site Ayarları</button>
+    <div class="sidebar-footer">
+      <button class="nav-link" onclick="doLogout()" style="padding:8px 0;color:rgba(255,255,255,.7)"><i class="ti ti-logout"></i>Çıkış</button>
+      <a href="index.html" target="_blank" class="nav-link" style="padding:8px 0;color:rgba(255,255,255,.7);text-decoration:none"><i class="ti ti-external-link"></i>Siteyi Gör</a>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="admin-main">
+
+    <!-- DASHBOARD -->
+    <div id="panel-dashboard" class="panel active">
+      <div class="panel-header">
+        <div><div class="panel-title">Kontrol Paneli</div><div class="panel-subtitle">Nikfer Belleği genel durumu</div></div>
+      </div>
+      <div class="stats-grid" id="dash-stats">
+        <div class="stat-box"><div class="num" id="ds-sections">—</div><div class="lbl">Bölüm</div></div>
+        <div class="stat-box"><div class="num" id="ds-blocks">—</div><div class="lbl">İçerik Bloğu</div></div>
+        <div class="stat-box"><div class="num" id="ds-comments">—</div><div class="lbl">Onaylı Yorum</div></div>
+        <div class="stat-box"><div class="num" id="ds-pending" style="color:var(--danger)">—</div><div class="lbl">Onay Bekleyen</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Son Yorumlar (Onay Bekleyen)</h3></div>
+        <div class="card-body" id="dash-pending-list"><div class="loading-row"><span class="spinner"></span></div></div>
+      </div>
+    </div>
+
+    <!-- SECTIONS -->
+    <div id="panel-sections" class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Bölümler</div><div class="panel-subtitle">Ana içerik bölümlerini yönetin</div></div>
+        <button class="btn btn-primary" onclick="openSectionModal()"><i class="ti ti-plus"></i> Yeni Bölüm</button>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="data-table">
+            <thead><tr><th style="width:40px">#</th><th>Başlık</th><th>Slug</th><th style="width:90px">Görünürlük</th><th style="width:200px">İşlem</th></tr></thead>
+            <tbody id="sections-tbody"><tr><td colspan="5" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT BLOCKS -->
+    <div id="panel-content" class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">İçerik Blokları</div><div class="panel-subtitle">Bölüm seçip içerik ekleyin veya düzenleyin</div></div>
+        <button class="btn btn-primary" onclick="openBlockModal()"><i class="ti ti-plus"></i> Yeni Blok</button>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-body" style="padding:12px 16px;display:flex;align-items:center;gap:12px">
+          <label class="form-label" style="margin:0;white-space:nowrap">Bölüm:</label>
+          <select class="form-control" id="content-section-filter" onchange="loadBlocks(this.value)" style="max-width:260px">
+            <option value="">— Seçin —</option>
+          </select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="data-table">
+            <thead><tr><th style="width:40px">#</th><th style="width:90px">Tür</th><th>İçerik</th><th style="width:180px">İşlem</th></tr></thead>
+            <tbody id="blocks-tbody"><tr><td colspan="5" class="loading-row">Bölüm seçin</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUDIO -->
+    <div id="panel-audio" class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Ses Dosyaları</div><div class="panel-subtitle">Sesli anlatımları yükleyin ve yönetin</div></div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-body" style="padding:12px 16px;display:flex;align-items:center;gap:12px">
+          <label class="form-label" style="margin:0;white-space:nowrap">Bölüm:</label>
+          <select class="form-control" id="audio-section-filter" onchange="loadAudio(this.value)" style="max-width:260px">
+            <option value="">— Seçin —</option>
+          </select>
+        </div>
+      </div>
+      <div class="card" id="audio-upload-card">
+        <div class="card-header"><h3>Yeni Ses Yükle</h3></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Başlık</label>
+              <input class="form-control" id="audio-title" placeholder="Naboğlu — Bölüm 1">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ses Dosyası (MP3)</label>
+              <input type="file" class="form-control" id="audio-file" accept="audio/*">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="uploadAudioUI()"><i class="ti ti-upload"></i> Yükle</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="data-table">
+            <thead><tr><th>Başlık</th><th>Oynat</th><th>Dosya</th><th>İşlem</th></tr></thead>
+            <tbody id="audio-tbody"><tr><td colspan="4" class="loading-row">Bölüm seçin</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- GALLERY -->
+    <div id="panel-gallery" class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Fotoğraflar</div><div class="panel-subtitle">Bölüm fotoğraflarını yükleyin ve düzenleyin</div></div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-body" style="padding:12px 16px;display:flex;align-items:center;gap:12px">
+          <label class="form-label" style="margin:0;white-space:nowrap">Bölüm:</label>
+          <select class="form-control" id="gallery-section-filter" onchange="loadGallery(this.value)" style="max-width:260px">
+            <option value="">— Seçin —</option>
+          </select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h3>Yeni Fotoğraf Yükle</h3></div>
+        <div class="card-body">
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">Başlık</label><input class="form-control" id="img-title" placeholder="Fotoğraf başlığı"></div>
+            <div class="form-group"><label class="form-label">Altyazı</label><input class="form-control" id="img-caption" placeholder="Açıklama"></div>
+          </div>
+          <div class="form-group"><label class="form-label">Fotoğraf Dosyası</label><input type="file" class="form-control" id="img-file" accept="image/*"></div>
+          <button class="btn btn-primary" onclick="uploadImageUI()"><i class="ti ti-upload"></i> Yükle</button>
+        </div>
+      </div>
+      <div id="gallery-grid-admin" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-top:16px"></div>
+    </div>
+
+    <!-- LINKS -->
+    <div id="panel-links" class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Linkler</div><div class="panel-subtitle">Kaynak ve harici linkleri yönetin</div></div>
+        <button class="btn btn-primary" onclick="openLinkModal()"><i class="ti ti-plus"></i> Yeni Link</button>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="card-body" style="padding:12px 16px;display:flex;align-items:center;gap:12px">
+          <label class="form-label" style="margin:0;white-space:nowrap">Bölüm:</label>
+          <select class="form-control" id="links-section-filter" onchange="loadLinks(this.value)" style="max-width:260px">
+            <option value="">— Seçin —</option>
+          </select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="data-table">
+            <thead><tr><th>Başlık</th><th>URL</th><th>Tür</th><th>İşlem</th></tr></thead>
+            <tbody id="links-tbody"><tr><td colspan="4" class="loading-row">Bölüm seçin</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMENTS -->
+    <div id="panel-comments" class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Yorumlar</div><div class="panel-subtitle">Topluluk yorumlarını onaylayın veya silin</div></div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="loadComments('all')">Tümü</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadComments('pending')">Onay Bekleyen</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadComments('approved')">Onaylı</button>
+        </div>
+      </div>
+      <div id="comments-alert"></div>
+      <div class="card">
+        <div class="tbl-wrap">
+          <table class="data-table">
+            <thead><tr><th>Ad</th><th>Bölüm</th><th>Yorum</th><th>Tarih</th><th>Durum</th><th>İşlem</th></tr></thead>
+            <tbody id="comments-tbody"><tr><td colspan="6" class="loading-row"><span class="spinner"></span></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- AYARLAR -->
+    <div id="panel-settings" class="panel">
+      <div class="panel-header">
+        <div><div class="panel-title">Site Ayarları</div><div class="panel-subtitle">Ana sayfa istatistikleri ve genel ayarlar</div></div>
+      </div>
+      <div id="settings-alert"></div>
+
+      <div class="card">
+        <div class="card-header"><h3>📊 Ana Sayfa İstatistikleri</h3></div>
+        <div class="card-body">
+          <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px">
+            Muhtar ve şehit sayıları veritabanından otomatik hesaplanır.
+            Nüfus gibi manuel veriler buradan düzenlenir.
+          </p>
+
+          <!-- Nüfus -->
+          <div class="form-group">
+            <label class="form-label">Kayıtlı Nüfus</label>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input class="form-control" type="number" id="setting-nufus"
+                placeholder="5250" style="max-width:160px">
+              <button class="btn btn-primary btn-sm"
+                onclick="saveSettingUI('nufus', document.getElementById('setting-nufus').value)">
+                <i class="ti ti-check"></i> Kaydet
+              </button>
+            </div>
+            <div class="form-hint">Ana sayfada "Kayıtlı Nüfus" olarak gösterilir</div>
+          </div>
+
+          <!-- Otomatik hesaplanan -->
+          <div style="background:rgba(139,69,19,.05);border-radius:10px;padding:14px;margin-top:8px">
+            <div style="font-size:12px;font-weight:600;color:var(--primary);margin-bottom:10px">
+              <i class="ti ti-robot" style="margin-right:5px"></i>Otomatik Hesaplanan
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px" id="auto-stats">
+              <div class="stat-box" style="padding:10px">
+                <div class="num" id="as-muhtar" style="font-size:20px">—</div>
+                <div class="lbl">Muhtar Sayısı</div>
+              </div>
+              <div class="stat-box" style="padding:10px">
+                <div class="num" id="as-sehit" style="font-size:20px">—</div>
+                <div class="lbl">Şehit Sayısı</div>
+              </div>
+              <div class="stat-box" style="padding:10px">
+                <div class="num" id="as-bolum" style="font-size:20px">—</div>
+                <div class="lbl">Görünür Bölüm</div>
+              </div>
+              <div class="stat-box" style="padding:10px">
+                <div class="num" id="as-yorum" style="font-size:20px">—</div>
+                <div class="lbl">Onaylı Yorum</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODALS -->
+<!-- Section Modal -->
+<div class="modal-bg" id="section-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="section-modal-title">Yeni Bölüm</h3>
+      <button class="modal-close" onclick="closeModal('section-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="section-modal-alert"></div>
+      <input type="hidden" id="section-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Başlık *</label>
+          <input class="form-control" id="section-title" placeholder="Nikfer Şiiri">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Slug * <span class="form-hint">(URL'de kullanılır)</span></label>
+          <input class="form-control" id="section-slug" placeholder="nikfer-siiri">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Alt Başlık</label>
+        <input class="form-control" id="section-subtitle" placeholder="Kısa açıklama">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">İkon <a href="https://tabler.io/icons" target="_blank" style="font-size:10px;color:var(--primary)">(tabler.io)</a></label>
+          <input class="form-control" id="section-icon" placeholder="book, sword, feather...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sıra</label>
+          <input class="form-control" type="number" id="section-sort" placeholder="10">
+        </div>
+      </div>
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="section-visible" checked>
+          <span class="form-label" style="margin:0">Görünür (sitede göster)</span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="section-comments" checked>
+          <span class="form-label" style="margin:0">
+            Yoruma Açık
+            <span style="font-size:10px;font-weight:400;color:var(--text-muted);display:block;margin-top:1px">
+              Kapatırsanız bu bölümde yorum formu görünmez
+            </span>
+          </span>
+        </label>
+      </div>
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="section-featured">
+          <span class="form-label" style="margin:0">
+            ⭐ Öne Çıkar
+            <span style="font-size:10px;font-weight:400;color:var(--text-muted);display:block;margin-top:1px">
+              Ana sayfada "Öne Çıkan Bölümler" alanında gösterilir
+            </span>
+          </span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('section-modal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveSectionUI()"><i class="ti ti-check"></i> Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Block Modal -->
+<div class="modal-bg" id="block-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="block-modal-title">Yeni İçerik Bloğu</h3>
+      <button class="modal-close" onclick="closeModal('block-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="block-modal-alert"></div>
+      <input type="hidden" id="block-id">
+      <div class="form-group">
+        <label class="form-label">Bölüm *</label>
+        <select class="form-control" id="block-section-id"></select>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tür *</label>
+          <select class="form-control" id="block-type" onchange="onBlockTypeChange()">
+            <option value="paragraph">Paragraf</option>
+            <option value="heading">Alt Başlık</option>
+            <option value="quote">Alıntı</option>
+            <option value="poem">Şiir / Türkü</option>
+            <option value="list_item">Madde</option>
+            <option value="info_row">Bilgi Satırı (key: value)</option>
+            <option value="table_row">Tablo Satırı</option>
+            <option value="note">Dipnot / Kaynak</option>
+            <option value="divider">Ayırıcı</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sıra</label>
+          <input class="form-control" type="number" id="block-sort" value="0">
+        </div>
+      </div>
+      <div class="form-group" id="block-content-group">
+        <label class="form-label" id="block-content-label">İçerik *</label>
+        <!-- Düz metin alanı (şiir, tablo, kod vb. için) -->
+        <textarea class="form-control plain-editor" id="block-content-plain" rows="5"
+          placeholder="İçeriği buraya yazın..."></textarea>
+        <!-- Zengin metin editörü (paragraf, alıntı, madde için) -->
+        <div class="quill-wrap">
+          <div id="quill-editor"></div>
+        </div>
+        <!-- Gizli alan — her zaman ham değeri saklar -->
+        <textarea id="block-content" style="display:none"></textarea>
+      </div>
+      <div class="form-group" id="block-meta-group" style="display:none">
+        <label class="form-label" id="block-meta-label">Meta (JSON)</label>
+        <textarea class="form-control" id="block-meta" rows="3" placeholder='{"value": "Nikfer"}' style="font-family:monospace;font-size:12px"></textarea>
+        <div class="form-hint" id="block-meta-hint"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('block-modal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveBlockUI()"><i class="ti ti-check"></i> Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Ses Düzenle Modal -->
+<div class="modal-bg" id="audio-edit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Ses Dosyasını Düzenle</h3>
+      <button class="modal-close" onclick="closeModal('audio-edit-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="audio-edit-alert"></div>
+      <input type="hidden" id="ae-id">
+      <input type="hidden" id="ae-section-id">
+      <div class="form-group">
+        <label class="form-label">Başlık *</label>
+        <input class="form-control" id="ae-title" placeholder="Ses başlığı">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sıra Numarası</label>
+        <input class="form-control" type="number" id="ae-sort" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="color:var(--text-muted);font-size:11px">
+          <i class="ti ti-info-circle" style="margin-right:3px"></i>
+          Ses dosyasını değiştirmek için önce silin, sonra yeniden yükleyin.
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('audio-edit-modal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveAudioEditUI()"><i class="ti ti-check"></i> Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Fotoğraf Düzenle Modal -->
+<div class="modal-bg" id="image-edit-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Fotoğrafı Düzenle</h3>
+      <button class="modal-close" onclick="closeModal('image-edit-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="image-edit-alert"></div>
+      <input type="hidden" id="ie-id">
+      <input type="hidden" id="ie-section-id">
+      <div style="margin-bottom:14px;text-align:center">
+        <img id="ie-preview" src="" style="max-width:100%;max-height:160px;object-fit:cover;border-radius:8px;border:1px solid var(--border)" loading="lazy">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Başlık</label>
+        <input class="form-control" id="ie-title" placeholder="Fotoğraf başlığı">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Altyazı</label>
+        <input class="form-control" id="ie-caption" placeholder="Kısa açıklama">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Sıra Numarası</label>
+        <input class="form-control" type="number" id="ie-sort" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label" style="color:var(--text-muted);font-size:11px">
+          <i class="ti ti-info-circle" style="margin-right:3px"></i>
+          Görseli değiştirmek için önce silin, sonra yeniden yükleyin.
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('image-edit-modal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveImageEditUI()"><i class="ti ti-check"></i> Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- Link Modal -->
+<div class="modal-bg" id="link-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Yeni Link</h3>
+      <button class="modal-close" onclick="closeModal('link-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="link-modal-alert"></div>
+      <input type="hidden" id="link-edit-id">
+      <div class="form-group">
+        <label class="form-label">Bölüm *</label>
+        <select class="form-control" id="link-section-id"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Başlık *</label>
+        <input class="form-control" id="link-title" placeholder="Makale başlığı">
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL *</label>
+        <input class="form-control" id="link-url" type="url" placeholder="https://...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Açıklama</label>
+        <input class="form-control" id="link-desc" placeholder="Kaynak, yayın adı vb.">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tür</label>
+        <select class="form-control" id="link-type">
+          <option value="external">Harici Link</option>
+          <option value="newspaper">Gazete Haberi</option>
+          <option value="document">Belge / PDF</option>
+          <option value="video">Video</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('link-modal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveLinkUI()"><i class="ti ti-check"></i> Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+<script type="module">
+import {
+  supabase,
+  signIn, signOut, getSession, onAuthChange,
+  getSections, getAllSections, createSection, updateSection, deleteSection,
+  getContentBlocks, createBlock, updateBlock, deleteBlock,
+  getAudioFiles, uploadAudio, updateAudio, deleteAudio,
+  uploadImage, updateImage, deleteImage, getGallery,
+  getLinks, createLink, updateLink, deleteLink,
+  getAllComments, approveComment, pinComment, deleteComment,
+  getSiteSettings, updateSiteSetting, getStatCounts
+} from './db.js';
+
+let sections = [];
+let currentSection = null;
+
+// ── AUTH ─────────────────────────────────────────────────────
+// ── QUILL EDITOR ─────────────────────────────────────────────
+let quillInstance = null;
+
+function initQuill() {
+  if (quillInstance) return; // Zaten başlatılmış
+  quillInstance = new Quill('#quill-editor', {
+    theme: 'snow',
+    placeholder: 'Paragraf metnini buraya yazın...',
+    modules: {
+      toolbar: [
+        [{ 'header': [2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'size': ['small', false, 'large', 'huge'] }],
+        ['blockquote'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        ['link'],
+        ['clean']
+      ]
+    }
+  });
+}
+
+// Zengin editör mi düz metin mi gösterileceğini belirle
+const RICH_TEXT_TYPES = ['paragraph', 'quote', 'list_item', 'heading'];
+
+function setEditorMode(type) {
+  const group   = document.getElementById('block-content-group');
+  const plain   = document.getElementById('block-content-plain');
+  if (RICH_TEXT_TYPES.includes(type)) {
+    group.classList.add('show-quill');
+    initQuill();
+  } else {
+    group.classList.remove('show-quill');
+  }
+}
+
+// Quill içeriğini gizli textarea'ya senkronize et (kaydetmeden önce)
+function syncQuillToTextarea() {
+  const type = document.getElementById('block-type').value;
+  if (RICH_TEXT_TYPES.includes(type) && quillInstance) {
+    const html = quillInstance.getSemanticHTML();
+    // Sadece içerik varsa al; boş paragraf bırakma
+    const clean = html === '<p></p>' || html === '<p><br></p>' ? '' : html;
+    document.getElementById('block-content').value = clean;
+  } else {
+    document.getElementById('block-content').value =
+      document.getElementById('block-content-plain').value;
+  }
+}
+
+// Editörü doldur (düzenle modunda)
+function fillEditor(type, value) {
+  if (RICH_TEXT_TYPES.includes(type)) {
+    setEditorMode(type);
+    if (quillInstance) {
+      if (value && value.trim().startsWith('<')) {
+        quillInstance.clipboard.dangerouslyPasteHTML(value);
+      } else {
+        quillInstance.setText(value || '');
+      }
+    }
+  } else {
+    setEditorMode(type);
+    document.getElementById('block-content-plain').value = value || '';
+  }
+}
+
+onAuthChange((event, session) => {
+  if (session) showAdmin();
+  else showLogin();
+});
+
+window.doLogin = async function() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const alert = document.getElementById('login-alert');
+  alert.innerHTML = '';
+  try {
+    await signIn(email, pass);
+  } catch(e) {
+    alert.innerHTML = `<div class="alert alert-danger"><i class="ti ti-alert-circle"></i> ${e.message}</div>`;
+  }
+};
+
+window.doLogout = async function() {
+  await signOut();
+};
+
+async function showAdmin() {
+  document.getElementById('login-page').style.display   = 'none';
+  document.getElementById('admin-wrap').style.display   = 'flex';
+  await loadMasterData();
+  await loadDashboard();
+  await loadComments('all');
+}
+
+function showLogin() {
+  document.getElementById('login-page').style.display   = 'flex';
+  document.getElementById('admin-wrap').style.display   = 'none';
+}
+
+// Enter key on login
+document.getElementById('login-pass').addEventListener('keydown', e => {
+  if (e.key === 'Enter') window.doLogin();
+});
+
+// ── MASTER DATA ───────────────────────────────────────────────
+async function loadMasterData() {
+  sections = await getAllSections(); // Admin: gizli bölümler de görünsün
+  // Populate all section selects
+  const opts = sections.map(s => `<option value="${s.id}">${s.title}</option>`).join('');
+  ['content-section-filter','audio-section-filter','gallery-section-filter',
+   'links-section-filter','block-section-id','link-section-id'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = `<option value="">— Seçin —</option>` + opts;
+  });
+}
+
+// ── PANEL NAV ─────────────────────────────────────────────────
+window.showPanel = function(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+
+  if (id === 'sections') loadSections();
+  if (id === 'comments') loadComments('all');
+  if (id === 'settings') loadSettings();
+};
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+async function loadDashboard() {
+  try {
+    const [{ count: sc }, { count: bc }, { count: ac }, { count: pc }] = await Promise.all([
+      supabase.from('sections').select('*', { count:'exact', head:true }),
+      supabase.from('content_blocks').select('*', { count:'exact', head:true }),
+      supabase.from('comments').select('*', { count:'exact', head:true }).eq('is_approved', true),
+      supabase.from('comments').select('*', { count:'exact', head:true }).eq('is_approved', false),
+    ]);
+    document.getElementById('ds-sections').textContent = sc || 0;
+    document.getElementById('ds-blocks').textContent   = bc || 0;
+    document.getElementById('ds-comments').textContent = ac || 0;
+    document.getElementById('ds-pending').textContent  = pc || 0;
+
+    if (pc > 0) {
+      const badge = document.getElementById('pending-badge');
+      badge.textContent = pc;
+      badge.style.display = 'inline-block';
+    }
+
+    // Pending comments list
+    const { data: pending } = await supabase
+      .from('comments').select('*, sections(title)')
+      .eq('is_approved', false)
+      .order('created_at', { ascending:false })
+      .limit(5);
+
+    const wrap = document.getElementById('dash-pending-list');
+    if (!pending?.length) {
+      wrap.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Onay bekleyen yorum yok.</p>';
+      return;
+    }
+    wrap.innerHTML = pending.map(c => `
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:600">${c.author_name} <span style="font-weight:400;color:var(--text-muted);font-size:11px">${c.sections?.title||'—'}</span></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:3px">${c.content.slice(0,100)}${c.content.length>100?'...':''}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-shrink:0">
+          <button class="btn btn-success btn-sm" onclick="quickApprove('${c.id}')"><i class="ti ti-check"></i> Onayla</button>
+          <button class="btn btn-danger btn-sm" onclick="quickDelete('${c.id}')"><i class="ti ti-trash"></i></button>
+        </div>
+      </div>`).join('');
+  } catch(e) { console.error(e); }
+}
+
+window.quickApprove = async function(id) {
+  await approveComment(id);
+  loadDashboard();
+  loadComments('all');
+};
+window.quickDelete = async function(id) {
+  if (!confirm('Bu yorumu silmek istediğinize emin misiniz?')) return;
+  await deleteComment(id);
+  loadDashboard();
+  loadComments('all');
+};
+
+// ── SECTIONS ─────────────────────────────────────────────────
+window.loadSections = async function loadSections() {
+  const tbody = document.getElementById('sections-tbody');
+  tbody.innerHTML = '<tr><td colspan="5" class="loading-row"><span class="spinner"></span></td></tr>';
+  const data = await getAllSections(); // Admin: gizli bölümler de görünsün
+  _allSections = data;
+  renderSectionsTable(data);
+}
+
+let _allSections = [];
+
+function renderSectionsTable(data) {
+  const tbody = document.getElementById('sections-tbody');
+  if (!data.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="loading-row">Bölüm bulunamadı.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = data.map((s, idx) => {
+    const isFirst = idx === 0;
+    const isLast  = idx === data.length - 1;
+    const sEnc    = encodeURIComponent(JSON.stringify(s));
+    return `<tr style="${!s.is_visible ? 'opacity:.5' : ''}">
+      <td style="font-weight:700;color:var(--primary);text-align:center;width:36px">${idx + 1}</td>
+      <td>
+        <strong style="font-size:13px">${s.title}</strong>
+        <div style="font-size:11px;color:var(--text-muted)">${s.subtitle||''}</div>
+      </td>
+      <td><code style="font-size:11px;background:var(--bg);padding:2px 6px;border-radius:4px">${s.slug}</code></td>
+      <td>
+        ${s.is_visible
+          ? '<span class="badge badge-green">Görünür</span>'
+          : '<span class="badge badge-red" title="Sitede gizli — admin panelinde görünür">Gizli</span>'}
+        ${s.comments_enabled === false
+          ? '<span class="badge badge-yellow" style="margin-top:3px;display:block">Yorum Kapalı</span>'
+          : ''}
+        ${s.is_featured
+          ? '<span class="badge" style="background:rgba(212,168,83,.2);color:#7D6608;margin-top:3px;display:block">⭐ Öne Çıkan</span>'
+          : ''}
+      </td>
+      <td>
+        <div style="display:flex;gap:3px;align-items:center">
+          <button class="btn btn-ghost btn-sm btn-icon" title="Yukarı"
+            ${isFirst ? 'disabled style="opacity:.3"' : ''}
+            onclick="moveSection('${s.id}', -1)">
+            <i class="ti ti-arrow-up"></i>
+          </button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="Aşağı"
+            ${isLast ? 'disabled style="opacity:.3"' : ''}
+            onclick="moveSection('${s.id}', 1)">
+            <i class="ti ti-arrow-down"></i>
+          </button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle"
+            data-section-id="${s.id}" onclick="editSectionById(this.dataset.sectionId)">
+            <i class="ti ti-pencil"></i>
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon" title="Sil"
+            onclick="deleteSectionUI('${s.id}')">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+window.moveSection = async function(sectionId, direction) {
+  const idx = _allSections.findIndex(s => s.id === sectionId);
+  if (idx < 0) return;
+  const swapIdx = idx + direction;
+  if (swapIdx < 0 || swapIdx >= _allSections.length) return;
+
+  const aOrder = _allSections[idx].sort_order;
+  const bOrder = _allSections[swapIdx].sort_order;
+
+  if (aOrder === bOrder) {
+    await normalizeSectionOrders();
+    await loadSections();
+    return;
+  }
+
+  await Promise.all([
+    updateSection(_allSections[idx].id,     { sort_order: bOrder }),
+    updateSection(_allSections[swapIdx].id, { sort_order: aOrder }),
+  ]);
+
+  await loadSections();
+  await loadMasterData(); // Diğer selectleri güncelle
+};
+
+async function normalizeSectionOrders() {
+  const all = await getSections();
+  await Promise.all(all.map((s, i) =>
+    updateSection(s.id, { sort_order: (i + 1) * 10 })
+  ));
+}
+
+
+window.openSectionModal = function() {
+  document.getElementById('section-modal-title').textContent = 'Yeni Bölüm';
+  document.getElementById('section-id').value = '';
+  ['section-title','section-subtitle','section-slug','section-icon','section-sort'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('section-visible').checked = true;
+  openModal('section-modal');
+};
+
+window.editSectionById = function(sectionId) {
+  const s = _allSections.find(x => x.id === sectionId);
+  if (!s) { alert('Bölüm bulunamadı, sayfayı yenileyin.'); return; }
+  editSection(s);
+};
+
+window.editSection = function(s) {
+  document.getElementById('section-modal-title').textContent = 'Bölümü Düzenle';
+  document.getElementById('section-id').value              = s.id;
+  document.getElementById('section-title').value           = s.title;
+  document.getElementById('section-subtitle').value        = s.subtitle || '';
+  document.getElementById('section-slug').value            = s.slug;
+  document.getElementById('section-icon').value            = s.icon || '';
+  document.getElementById('section-sort').value            = s.sort_order;
+  document.getElementById('section-visible').checked       = s.is_visible;
+  document.getElementById('section-comments').checked      =
+    s.comments_enabled !== false;
+  document.getElementById('section-featured').checked      =
+    s.is_featured === true;
+  openModal('section-modal');
+};
+
+window.saveSectionUI = async function() {
+  const id    = document.getElementById('section-id').value;
+  const alert = document.getElementById('section-modal-alert');
+  const payload = {
+    title:            document.getElementById('section-title').value.trim(),
+    subtitle:         document.getElementById('section-subtitle').value.trim(),
+    slug:             document.getElementById('section-slug').value.trim().toLowerCase().replace(/\s+/g,'-'),
+    icon:             document.getElementById('section-icon').value.trim(),
+    sort_order:       parseInt(document.getElementById('section-sort').value)||0,
+    is_visible:       document.getElementById('section-visible').checked,
+    comments_enabled: document.getElementById('section-comments').checked,
+    is_featured:      document.getElementById('section-featured').checked,
+  };
+  if (!payload.title || !payload.slug) {
+    alert.innerHTML = '<div class="alert alert-danger">Başlık ve slug zorunludur.</div>'; return;
+  }
+  try {
+    if (id) await updateSection(id, payload);
+    else    await createSection(payload);
+    closeModal('section-modal');
+    loadSections();
+    loadMasterData();
+  } catch(e) {
+    alert.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
+  }
+};
+
+window.deleteSectionUI = async function(id) {
+  if (!confirm('Bu bölümü ve tüm içeriğini silmek istediğinize emin misiniz? Bu işlem geri alınamaz!')) return;
+  await deleteSection(id);
+  loadSections();
+  loadMasterData();
+};
+
+// ── CONTENT BLOCKS ────────────────────────────────────────────
+window.loadBlocks = async function(sectionId) {
+  if (!sectionId) return;
+  _currentSectionId = sectionId;
+  const tbody = document.getElementById('blocks-tbody');
+  tbody.innerHTML = '<tr><td colspan="4" class="loading-row"><span class="spinner"></span></td></tr>';
+  const blocks = await getContentBlocks(sectionId);
+  _currentBlocks = blocks;
+  renderBlocksTable(blocks, sectionId);
+};
+
+let _currentBlocks = [];
+let _currentSectionId = null;
+
+function renderBlocksTable(blocks, sectionId) {
+  const tbody = document.getElementById('blocks-tbody');
+  if (!blocks.length) {
+    tbody.innerHTML = '<tr><td colspan="4" class="loading-row">İçerik bloğu bulunamadı.</td></tr>';
+    return;
+  }
+  const typeColors = {paragraph:'blue',heading:'purple',quote:'yellow',poem:'green',list_item:'blue',info_row:'yellow',table_row:'blue',note:'red',divider:'blue'};
+  let rows = '';
+  blocks.forEach((b, idx) => {
+    const isFirst = idx === 0;
+    const isLast  = idx === blocks.length - 1;
+    const preview = (b.content || '—').replace(/</g,'&lt;').replace(/"/g,'&quot;').slice(0,65) + ((b.content||'').length > 65 ? '…' : '');
+    const color   = typeColors[b.type] || 'blue';
+    // Güvenli yol: onclick içine VERİ koymuyoruz, sadece ID ile cache'den çekiyoruz
+    rows += `<tr>
+      <td style="font-weight:700;color:var(--primary);text-align:center;width:36px">${idx + 1}</td>
+      <td style="width:90px"><span class="badge badge-${color}" style="white-space:nowrap;font-size:9px">${b.type}</span></td>
+      <td style="font-size:11px;color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${preview}</td>
+      <td style="width:190px">
+        <div style="display:flex;gap:3px;align-items:center">
+          <button class="btn btn-ghost btn-sm btn-icon" title="Yukarı" ${isFirst?'disabled style="opacity:.3"':''} onclick="moveBlock('${b.id}',-1)"><i class="ti ti-arrow-up"></i></button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="Aşağı" ${isLast?'disabled style="opacity:.3"':''} onclick="moveBlock('${b.id}',1)"><i class="ti ti-arrow-down"></i></button>
+          <button class="btn btn-sm btn-icon" title="Altına ekle" style="background:rgba(39,174,96,.1);color:#1E8449;border:1px solid rgba(39,174,96,.3)" onclick="openBlockModalAfter(${idx+1})"><i class="ti ti-plus"></i></button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" data-block-id="${b.id}" onclick="editBlockById(this.dataset.blockId)"><i class="ti ti-pencil"></i></button>
+          <button class="btn btn-danger btn-sm btn-icon" title="Sil" onclick="deleteBlockUI('${b.id}','${sectionId}')"><i class="ti ti-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  });
+  tbody.innerHTML = rows;
+}
+
+// ID üzerinden cache'den bloğu güvenle çek — noktalama/Türkçe sorun olmaz
+window.editBlockById = function(blockId) {
+  const b = _currentBlocks.find(x => x.id === blockId);
+  if (!b) { alert('Blok bulunamadı, sayfayı yenileyin.'); return; }
+  editBlock(b);
+};
+
+window.moveBlock = async function(blockId, direction) {
+  const idx = _currentBlocks.findIndex(b => b.id === blockId);
+  if (idx < 0) return;
+  const swapIdx = idx + direction;
+  if (swapIdx < 0 || swapIdx >= _currentBlocks.length) return;
+  const aOrder = _currentBlocks[idx].sort_order;
+  const bOrder = _currentBlocks[swapIdx].sort_order;
+  if (aOrder === bOrder) {
+    await normalizeBlockOrders(_currentSectionId);
+  } else {
+    await Promise.all([
+      updateBlock(_currentBlocks[idx].id,    {sort_order: bOrder}),
+      updateBlock(_currentBlocks[swapIdx].id, {sort_order: aOrder}),
+    ]);
+  }
+  await loadBlocks(_currentSectionId);
+};
+
+async function normalizeBlockOrders(sectionId) {
+  const blocks = await getContentBlocks(sectionId);
+  await Promise.all(blocks.map((b,i) => updateBlock(b.id, {sort_order:(i+1)*10})));
+}
+
+window.openBlockModalAfter = function(afterIndex) {
+  const blocks = _currentBlocks;
+  let newOrder;
+  if (!blocks.length || afterIndex >= blocks.length) {
+    newOrder = (blocks[blocks.length-1]?.sort_order || 0) + 10;
+  } else {
+    const before = blocks[afterIndex-1]?.sort_order || 0;
+    const after  = blocks[afterIndex]?.sort_order   || before + 20;
+    newOrder = Math.floor((before + after) / 2);
+    if (newOrder <= before) {
+      normalizeBlockOrders(_currentSectionId).then(() =>
+        loadBlocks(_currentSectionId).then(() => openBlockModalAfter(afterIndex))
+      );
+      return;
+    }
+  }
+  openBlockModal();
+  document.getElementById('block-sort').value = newOrder;
+  document.getElementById('block-modal-title').textContent = afterIndex + '. satırın altına yeni blok';
+};
+
+
+window.openBlockModal = function() {
+  document.getElementById('block-modal-title').textContent = 'Yeni İçerik Bloğu';
+  document.getElementById('block-id').value             = '';
+  document.getElementById('block-content').value        = '';
+  document.getElementById('block-content-plain').value  = '';
+  document.getElementById('block-meta').value           = '';
+  document.getElementById('block-type').value           = 'paragraph';
+  if (quillInstance) quillInstance.setContents([]);
+  onBlockTypeChange();
+  if (_currentSectionId) {
+    document.getElementById('block-section-id').value = _currentSectionId;
+    const lastOrder = _currentBlocks.length
+      ? (_currentBlocks[_currentBlocks.length-1].sort_order + 10)
+      : 10;
+    document.getElementById('block-sort').value = lastOrder;
+  } else {
+    document.getElementById('block-sort').value = '10';
+  }
+  openModal('block-modal');
+};
+
+window.editBlock = function(b) {
+  document.getElementById('block-modal-title').textContent = 'Bloğu Düzenle';
+  document.getElementById('block-id').value         = b.id;
+  document.getElementById('block-section-id').value = b.section_id;
+  document.getElementById('block-type').value       = b.type;
+  document.getElementById('block-meta').value       = JSON.stringify(b.meta||{}, null, 2);
+  document.getElementById('block-sort').value       = b.sort_order;
+  onBlockTypeChange();
+  // Editörü içerikle doldur (tip değiştikten SONRA)
+  setTimeout(() => fillEditor(b.type, b.content || ''), 50);
+  openModal('block-modal');
+};
+
+window.onBlockTypeChange = function() {
+  const type = document.getElementById('block-type').value;
+  setEditorMode(type);
+  const metaGroup = document.getElementById('block-meta-group');
+  const metaLabel = document.getElementById('block-meta-label');
+  const metaHint  = document.getElementById('block-meta-hint');
+  const hints = {
+    info_row:  ['Değer', '{"value": "Denizli"}'],
+    table_row: ['Tablo Kolonları', '{"cols": ["1","Ad","Dönem"]}'],
+    list_item: ['Ek Veri', '{"answer": "Karpuz"} (bilmece için) veya {"desc": "Açıklama"}'],
+    quote:     ['Alıntı Sahibi', '{"author": "Süleyman Özkan"}'],
+    poem:      ['Şair', '{"author": "Hüseyin Hatipoğlu", "year": "1947"}'],
+    note:      ['', '{}'],
+  };
+  if (hints[type]) {
+    metaGroup.style.display = 'block';
+    metaLabel.textContent   = hints[type][0] || 'Meta';
+    metaHint.textContent    = 'Örnek: ' + hints[type][1];
+  } else {
+    metaGroup.style.display = 'none';
+  }
+};
+
+window.saveBlockUI = async function() {
+  syncQuillToTextarea(); // Quill içeriğini textarea'ya aktar
+  const id      = document.getElementById('block-id').value;
+  const alert   = document.getElementById('block-modal-alert');
+  let meta = {};
+  try { meta = JSON.parse(document.getElementById('block-meta').value || '{}'); } catch { meta = {}; }
+  const payload = {
+    section_id: document.getElementById('block-section-id').value,
+    type:       document.getElementById('block-type').value,
+    content:    document.getElementById('block-content').value.trim(),
+    meta,
+    sort_order: parseInt(document.getElementById('block-sort').value)||0,
+  };
+  if (!payload.section_id) { alert.innerHTML = '<div class="alert alert-danger">Bölüm seçin.</div>'; return; }
+  try {
+    if (id) await updateBlock(id, payload);
+    else    await createBlock(payload);
+    closeModal('block-modal');
+    await loadBlocks(payload.section_id);
+  } catch(e) {
+    alert.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
+  }
+};
+
+window.deleteBlockUI = async function(id, sectionId) {
+  if (!confirm('Bu içerik bloğunu silmek istediğinize emin misiniz?')) return;
+  await deleteBlock(id);
+  loadBlocks(sectionId);
+};
+
+// ── AUDIO ─────────────────────────────────────────────────────
+window.loadAudio = async function(sectionId) {
+  if (!sectionId) return;
+  const tbody = document.getElementById('audio-tbody');
+  tbody.innerHTML = '<tr><td colspan="4" class="loading-row"><span class="spinner"></span></td></tr>';
+  const files = await getAudioFiles(sectionId);
+  _currentAudio = files;
+  tbody.innerHTML = files.map(a => `
+    <tr>
+      <td>
+        <strong style="font-size:13px">${a.title}</strong>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px">Sıra: ${a.sort_order}</div>
+      </td>
+      <td><audio controls preload="none" style="height:30px;width:160px"><source src="${a.file_url}"></audio></td>
+      <td style="font-size:10px;color:var(--text-muted);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.file_path.split('/').pop()}</td>
+      <td>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle"
+            onclick="openAudioEditModal('${a.id}')">
+            <i class="ti ti-pencil"></i>
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon" title="Sil"
+            onclick="deleteAudioUI('${a.id}','${a.file_path}','${sectionId}')">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="4" class="loading-row">Ses dosyası yok.</td></tr>';
+};
+
+window.uploadAudioUI = async function() {
+  const sectionId = document.getElementById('audio-section-filter').value;
+  const title     = document.getElementById('audio-title').value.trim();
+  const file      = document.getElementById('audio-file').files[0];
+  if (!sectionId || !title || !file) { alert('Bölüm, başlık ve dosya seçin.'); return; }
+  try {
+    await uploadAudio(sectionId, file, title);
+    document.getElementById('audio-title').value = '';
+    document.getElementById('audio-file').value  = '';
+    loadAudio(sectionId);
+  } catch(e) { alert('Hata: ' + e.message); }
+};
+
+window.deleteAudioUI = async function(id, path, sectionId) {
+  if (!confirm('Ses dosyasını silmek istediğinize emin misiniz?')) return;
+  await deleteAudio(id, path);
+  loadAudio(sectionId);
+};
+
+// ── GALLERY ───────────────────────────────────────────────────
+window.loadGallery = async function(sectionId) {
+  if (!sectionId) return;
+  const grid = document.getElementById('gallery-grid-admin');
+  grid.innerHTML = '<div class="loading-row"><span class="spinner"></span></div>';
+  const items = await getGallery(sectionId);
+  if (!items.length) { grid.innerHTML = '<p style="font-size:13px;color:var(--text-muted)">Fotoğraf yok.</p>'; return; }
+  _currentGallery = items;
+  grid.innerHTML = items.map(g => `
+    <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <img src="${g.file_url}" style="width:100%;aspect-ratio:4/3;object-fit:cover" loading="lazy">
+      <div style="padding:8px">
+        <div style="font-size:12px;font-weight:600">${g.title||'—'}</div>
+        <div style="font-size:10px;color:var(--text-muted);margin-top:2px">${g.caption||''}</div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="btn btn-ghost btn-sm" style="flex:1;justify-content:center" title="Düzenle"
+            onclick="openImageEditModal('${g.id}')">
+            <i class="ti ti-pencil"></i> Düzenle
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon" title="Sil"
+            onclick="deleteImageUI('${g.id}','${g.file_path}','${sectionId}')">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>`).join('');
+};
+
+window.uploadImageUI = async function() {
+  const sectionId = document.getElementById('gallery-section-filter').value;
+  const title     = document.getElementById('img-title').value.trim();
+  const caption   = document.getElementById('img-caption').value.trim();
+  const file      = document.getElementById('img-file').files[0];
+  if (!sectionId || !file) { alert('Bölüm ve dosya seçin.'); return; }
+  try {
+    await uploadImage(sectionId, file, title, caption);
+    document.getElementById('img-title').value   = '';
+    document.getElementById('img-caption').value = '';
+    document.getElementById('img-file').value    = '';
+    loadGallery(sectionId);
+  } catch(e) { alert('Hata: ' + e.message); }
+};
+
+window.deleteImageUI = async function(id, path, sectionId) {
+  if (!confirm('Fotoğrafı silmek istediğinize emin misiniz?')) return;
+  await deleteImage(id, path);
+  loadGallery(sectionId);
+};
+
+// ── LINKS ─────────────────────────────────────────────────────
+window.loadLinks = async function(sectionId) {
+  if (!sectionId) return;
+  const tbody = document.getElementById('links-tbody');
+  tbody.innerHTML = '<tr><td colspan="4" class="loading-row"><span class="spinner"></span></td></tr>';
+  const items = await getLinks(sectionId);
+  _currentLinks = items;
+  tbody.innerHTML = items.map(l => `
+    <tr>
+      <td>
+        <strong style="font-size:13px">${l.title}</strong>
+        ${l.description?`<div style="font-size:11px;color:var(--text-muted)">${l.description}</div>`:''}
+      </td>
+      <td>
+        <a href="${l.url}" target="_blank" style="font-size:11px;color:var(--primary);word-break:break-all">
+          ${l.url.slice(0,45)}${l.url.length>45?'…':''}
+        </a>
+      </td>
+      <td><span class="badge badge-blue">${l.link_type}</span></td>
+      <td>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle"
+            onclick="openLinkEditModal('${l.id}')">
+            <i class="ti ti-pencil"></i>
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon" title="Sil"
+            onclick="deleteLinkUI('${l.id}','${sectionId}')">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="4" class="loading-row">Link bulunamadı.</td></tr>';
+};
+
+window.openLinkModal = function() {
+  document.getElementById('link-edit-id').value = ''; // Yeni ekleme modu
+  ['link-title','link-url','link-desc'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('link-type').value    = 'external';
+  document.getElementById('link-section-id').value = '';
+  document.getElementById('link-modal-alert').innerHTML = '';
+  openModal('link-modal');
+};
+
+window.saveLinkUI = async function() {
+  const editId  = document.getElementById('link-edit-id').value;
+  const alertEl = document.getElementById('link-modal-alert');
+  const payload = {
+    section_id:  document.getElementById('link-section-id').value,
+    title:       document.getElementById('link-title').value.trim(),
+    url:         document.getElementById('link-url').value.trim(),
+    description: document.getElementById('link-desc').value.trim(),
+    link_type:   document.getElementById('link-type').value,
+  };
+  if (!payload.section_id || !payload.title || !payload.url) {
+    alertEl.innerHTML = '<div class="alert alert-danger">Bölüm, başlık ve URL zorunludur.</div>'; return;
+  }
+  try {
+    if (editId) {
+      await updateLink(editId, payload);
+    } else {
+      await createLink(payload);
+    }
+    closeModal('link-modal');
+    loadLinks(payload.section_id);
+  } catch(e) {
+    alertEl.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
+  }
+};
+
+window.deleteLinkUI = async function(id, sectionId) {
+  if (!confirm('Linki silmek istediğinize emin misiniz?')) return;
+  await deleteLink(id);
+  loadLinks(sectionId);
+};
+
+// ── CACHE DEĞİŞKENLERİ ───────────────────────────────────────
+let _currentAudio   = [];
+let _currentGallery = [];
+let _currentLinks   = [];
+
+// ── SES DÜZENLE ───────────────────────────────────────────────
+window.openAudioEditModal = function(id) {
+  const a = _currentAudio.find(x => x.id === id);
+  if (!a) { alert('Kayıt bulunamadı.'); return; }
+  document.getElementById('ae-id').value         = a.id;
+  document.getElementById('ae-section-id').value = a.section_id;
+  document.getElementById('ae-title').value       = a.title || '';
+  document.getElementById('ae-sort').value        = a.sort_order || 0;
+  document.getElementById('audio-edit-alert').innerHTML = '';
+  openModal('audio-edit-modal');
+};
+
+window.saveAudioEditUI = async function() {
+  const id        = document.getElementById('ae-id').value;
+  const sectionId = document.getElementById('ae-section-id').value;
+  const alert     = document.getElementById('audio-edit-alert');
+  const title     = document.getElementById('ae-title').value.trim();
+  if (!title) { alert.innerHTML = '<div class="alert alert-danger">Başlık zorunludur.</div>'; return; }
+  try {
+    await updateAudio(id, {
+      title,
+      sort_order: parseInt(document.getElementById('ae-sort').value) || 0
+    });
+    closeModal('audio-edit-modal');
+    loadAudio(sectionId);
+  } catch(e) {
+    alert.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
+  }
+};
+
+// ── FOTOĞRAF DÜZENLE ──────────────────────────────────────────
+window.openImageEditModal = function(id) {
+  const g = _currentGallery.find(x => x.id === id);
+  if (!g) { alert('Kayıt bulunamadı.'); return; }
+  document.getElementById('ie-id').value         = g.id;
+  document.getElementById('ie-section-id').value = g.section_id;
+  document.getElementById('ie-title').value       = g.title || '';
+  document.getElementById('ie-caption').value     = g.caption || '';
+  document.getElementById('ie-sort').value        = g.sort_order || 0;
+  document.getElementById('ie-preview').src       = g.file_url;
+  document.getElementById('image-edit-alert').innerHTML = '';
+  openModal('image-edit-modal');
+};
+
+window.saveImageEditUI = async function() {
+  const id        = document.getElementById('ie-id').value;
+  const sectionId = document.getElementById('ie-section-id').value;
+  const alert     = document.getElementById('image-edit-alert');
+  try {
+    await updateImage(id, {
+      title:      document.getElementById('ie-title').value.trim(),
+      caption:    document.getElementById('ie-caption').value.trim(),
+      sort_order: parseInt(document.getElementById('ie-sort').value) || 0
+    });
+    closeModal('image-edit-modal');
+    loadGallery(sectionId);
+  } catch(e) {
+    alert.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
+  }
+};
+
+// ── LİNK DÜZENLE ─────────────────────────────────────────────
+window.openLinkEditModal = function(id) {
+  const l = _currentLinks.find(x => x.id === id);
+  if (!l) { alert('Kayıt bulunamadı.'); return; }
+  // Link modalını düzenleme modunda aç
+  document.getElementById('link-edit-id').value      = l.id;
+  document.getElementById('link-section-id').value   = l.section_id;
+  document.getElementById('link-title').value        = l.title || '';
+  document.getElementById('link-url').value          = l.url || '';
+  document.getElementById('link-desc').value         = l.description || '';
+  document.getElementById('link-type').value         = l.link_type || 'external';
+  document.getElementById('link-modal-alert').innerHTML = '';
+  openModal('link-modal');
+};
+
+// ── COMMENTS ─────────────────────────────────────────────────
+// ── AYARLAR ──────────────────────────────────────────────────
+async function loadSettings() {
+  try {
+    const [settings, counts] = await Promise.all([
+      getSiteSettings(),
+      getStatCounts(),
+    ]);
+
+    // Nüfus
+    const nufusEl = document.getElementById('setting-nufus');
+    if (nufusEl) nufusEl.value = settings['nufus']?.value || '';
+
+    // Otomatik istatistikler — 0 değeri de göster
+    const map = {
+      'as-muhtar': counts.muhtarCount,
+      'as-sehit':  counts.sehitCount,
+      'as-bolum':  counts.sectionCount,
+      'as-yorum':  counts.commentCount,
+    };
+    Object.entries(map).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = (val !== null && val !== undefined) ? val : '—';
+    });
+
+    console.log('İstatistikler:', counts);
+  } catch(e) {
+    console.error('loadSettings hatası:', e);
+    document.getElementById('settings-alert').innerHTML =
+      `<div class="alert alert-danger">Yüklenemedi: ${e.message}</div>`;
+  }
+}
+
+window.saveSettingUI = async function(key, value) {
+  const alertEl = document.getElementById('settings-alert');
+  if (!value && value !== '0') {
+    alertEl.innerHTML = '<div class="alert alert-danger">Değer boş olamaz.</div>';
+    return;
+  }
+  try {
+    await updateSiteSetting(key, String(value));
+    alertEl.innerHTML = '<div class="alert alert-success">✅ Kaydedildi! Ana sayfada güncel değer görünecek.</div>';
+    setTimeout(() => alertEl.innerHTML = '', 3000);
+  } catch(e) {
+    alertEl.innerHTML = `<div class="alert alert-danger">${e.message}</div>`;
+  }
+};
+
+window.loadComments = async function(filter = 'all') {
+  const tbody = document.getElementById('comments-tbody');
+  tbody.innerHTML = '<tr><td colspan="6" class="loading-row"><span class="spinner"></span></td></tr>';
+  let data = await getAllComments();
+  if (filter === 'pending')  data = data.filter(c => !c.is_approved);
+  if (filter === 'approved') data = data.filter(c =>  c.is_approved);
+
+  tbody.innerHTML = data.map(c => {
+    const date = new Date(c.created_at).toLocaleDateString('tr-TR');
+    return `<tr>
+      <td>
+        <div style="font-weight:600;font-size:13px">${c.author_name}</div>
+        ${c.author_note ? `<div style="font-size:10px;color:var(--text-muted)">${c.author_note}</div>` : ''}
+      </td>
+      <td style="font-size:11px;color:var(--text-muted)">${c.sections?.title||'—'}</td>
+      <td style="font-size:12px;max-width:220px">${c.content.slice(0,80)}${c.content.length>80?'…':''}</td>
+      <td style="font-size:11px;white-space:nowrap">${date}</td>
+      <td>${c.is_approved ? '<span class="badge badge-green">Onaylı</span>' : '<span class="badge badge-yellow">Bekliyor</span>'}
+          ${c.is_pinned  ? '<span class="badge badge-blue" style="margin-top:3px">Öne Çıkan</span>' : ''}</td>
+      <td>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          ${!c.is_approved ? `<button class="btn btn-success btn-sm" onclick="approveUI('${c.id}')"><i class="ti ti-check"></i></button>` : ''}
+          <button class="btn btn-ghost btn-sm" title="${c.is_pinned?'Öne Çıkarmayı Kaldır':'Öne Çıkar'}" onclick="pinUI('${c.id}',${!c.is_pinned})">
+            <i class="ti ti-${c.is_pinned?'pin-off':'pin'}"></i>
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="deleteCommentUI('${c.id}')"><i class="ti ti-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="6" class="loading-row">Yorum bulunamadı.</td></tr>';
+};
+
+window.approveUI = async function(id) {
+  await approveComment(id);
+  loadComments('all');
+  loadDashboard();
+};
+window.pinUI = async function(id, pinned) {
+  await pinComment(id, pinned);
+  loadComments('all');
+};
+window.deleteCommentUI = async function(id) {
+  if (!confirm('Bu yorumu silmek istediğinize emin misiniz?')) return;
+  await deleteComment(id);
+  loadComments('all');
+  loadDashboard();
+};
+
+// ── MODAL HELPERS ─────────────────────────────────────────────
+window.openModal  = id => document.getElementById(id).classList.add('open');
+window.closeModal = id => {
+  document.getElementById(id).classList.remove('open');
+  // Clear alerts
+  const a = document.getElementById(id.replace('-modal','') + '-modal-alert');
+  if (a) a.innerHTML = '';
+};
+
+// Close modal on bg click
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
