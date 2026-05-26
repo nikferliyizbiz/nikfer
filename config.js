@@ -4,7 +4,7 @@
 // Supabase Dashboard > Project Settings > API
 // ============================================================
 
-const SUPABASE_URL = 'https://siszlrwhqpjjfxsuzlqa.supabase.co';  // ← değiştirin
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNpc3pscndocXBqamZ4c3V6bHFhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNDQwMTUsImV4cCI6MjA5NDkyMDAxNX0.CBYFFMOUjAIGafHCKuU2ChZdaJitj1H3zzzJ1JazIlU';          // ← değiştirin
+const SUPABASE_URL = 'https://zvspjcuwvvehpwmxhfrp.supabase.co';  // ← değiştirin
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2c3BqY3V3dnZlaHB3bXhoZnJwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NDkyNjIsImV4cCI6MjA5NTMyNTI2Mn0.DJurxVEfsUOqSf2MXzQAw-J5hLGT2wxRRjxOl9a2NGM';          // ← değiştirin
 
 export { SUPABASE_URL, SUPABASE_ANON_KEY };
