@@ -144,7 +144,7 @@ export async function getApprovedComments(sectionId = null) {
 }
 
 export async function submitComment({ sectionId, authorName, authorNote, content }) {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('comments')
     .insert({
       section_id:  sectionId,
@@ -152,11 +152,8 @@ export async function submitComment({ sectionId, authorName, authorNote, content
       author_note: authorNote,
       content,
       is_approved: false
-    })
-    .select()
-    .single();
+    });
   if (error) throw error;
-  return data;
 }
 
 // ── REALTIME (canlı yorum güncellemesi) ──────────────────────
