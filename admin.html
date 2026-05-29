@@ -1044,9 +1044,32 @@ window.saveSectionUI = async function() {
 
 window.deleteSectionUI = async function(id) {
   if (!confirm('Bu bölümü ve tüm içeriğini silmek istediğinize emin misiniz? Bu işlem geri alınamaz!')) return;
-  await deleteSection(id);
-  loadSections();
-  loadMasterData();
+
+  try {
+    // 1. Storage'daki dosyaları bul
+    const [audioRes, galleryRes] = await Promise.all([
+      supabase.from('audio_files').select('file_path').eq('section_id', id),
+      supabase.from('gallery').select('file_path').eq('section_id', id),
+    ]);
+
+    const paths = [
+      ...(audioRes.data || []).map(f => f.file_path),
+      ...(galleryRes.data || []).map(f => f.file_path),
+    ].filter(Boolean);
+
+    // 2. Storage'dan sil
+    if (paths.length) {
+      const { error: storageErr } = await supabase.storage.from('nikfer-media').remove(paths);
+      if (storageErr) console.warn('Bazı dosyalar Storage\'dan silinemedi:', storageErr.message);
+    }
+
+    // 3. Bölümü sil (ON DELETE CASCADE ile DB kayıtları otomatik temizlenir)
+    await deleteSection(id);
+    loadSections();
+    loadMasterData();
+  } catch(e) {
+    alert('Silme hatası: ' + e.message);
+  }
 };
 
 // ── CONTENT BLOCKS ────────────────────────────────────────────
