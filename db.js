@@ -155,7 +155,6 @@ export async function submitComment({ sectionId, authorName, authorNote, content
     });
   if (error) throw error;
 }
-
 // ── REALTIME (canlı yorum güncellemesi) ──────────────────────
 
 export function subscribeComments(sectionId, callback) {
