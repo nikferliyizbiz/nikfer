@@ -456,12 +456,35 @@ import {
   getSections, getSectionWithContent,
   getFeaturedSections, getRecentComments,
   getSiteSettings, getStatCounts,
-  getApprovedComments, submitComment,
-  subscribeComments
+  getApprovedComments, submitComment
 } from './db.js';
 
 // ── CACHE ──────────────────────────────────────────────────
+const CACHE_TTL = 5 * 60 * 1000; // 5 dakika
 const cache = {};
+
+function getCached(key) {
+  const entry = cache[key];
+  if (!entry) return null;
+  if (Date.now() - entry.ts > CACHE_TTL) { delete cache[key]; return null; }
+  return entry.data;
+}
+
+function setCached(key, data) {
+  cache[key] = { data, ts: Date.now() };
+}
+
+// ── XSS KORUMASI ───────────────────────────────────────────
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 let currentSlug   = null;
 let currentDetail = null;
 
@@ -614,8 +637,9 @@ window.openSection = async function(slug) {
   body.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
   try {
-    const data = cache[slug] || await getSectionWithContent(slug);
-    cache[slug] = data;
+    const cached = getCached(slug);
+    const data = cached || await getSectionWithContent(slug);
+    if (!cached) setCached(slug, data);
 
     title.textContent = data.section.title;
     if (data.section.subtitle) {
@@ -1000,21 +1024,20 @@ function renderComments(list, containerId) {
 
 function commentHTML(c) {
   const date = new Date(c.created_at).toLocaleDateString('tr-TR');
-  // Bölüm adını cache.sections'dan bul
   const section = (cache.sections || []).find(s => s.id === c.section_id);
   const sectionTag = section
     ? `<span style="display:inline-block;background:rgba(139,69,19,.08);color:var(--primary);font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;margin-bottom:6px">
-        <i class="ti ti-book" style="font-size:11px;margin-right:3px"></i>${section.title}
+        <i class="ti ti-book" style="font-size:11px;margin-right:3px"></i>${escapeHtml(section.title)}
        </span>`
     : '';
   return `<div class="comment-item">
     <div class="comment-meta">
-      <span class="comment-name">${c.author_name}${c.is_pinned ? ' <span class="pinned-badge">Öne Çıkan</span>' : ''}</span>
+      <span class="comment-name">${escapeHtml(c.author_name)}${c.is_pinned ? ' <span class="pinned-badge">Öne Çıkan</span>' : ''}</span>
       <span class="comment-date">${date}</span>
     </div>
-    ${c.author_note ? `<div class="comment-note">${c.author_note}</div>` : ''}
+    ${c.author_note ? `<div class="comment-note">${escapeHtml(c.author_note)}</div>` : ''}
     ${sectionTag}
-    <div class="comment-text">${c.content}</div>
+    <div class="comment-text">${escapeHtml(c.content)}</div>
   </div>`;
 }
 
