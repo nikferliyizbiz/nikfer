@@ -266,7 +266,8 @@ export function updateAudio(id, payload) {
 }
 
 export async function deleteAudio(id, filePath) {
-  await supabase.storage.from('nikfer-media').remove([filePath]);
+  const { error: storageErr } = await supabase.storage.from('nikfer-media').remove([filePath]);
+  if (storageErr) console.warn('Audio Storage\'dan silinemedi:', storageErr.message);
   const { error } = await supabase.from('audio_files').delete().eq('id', id);
   if (error) throw error;
 }
@@ -292,7 +293,8 @@ export function updateImage(id, payload) {
 }
 
 export async function deleteImage(id, filePath) {
-  await supabase.storage.from('nikfer-media').remove([filePath]);
+  const { error: storageErr } = await supabase.storage.from('nikfer-media').remove([filePath]);
+  if (storageErr) console.warn('Görsel Storage\'dan silinemedi:', storageErr.message);
   const { error } = await supabase.from('gallery').delete().eq('id', id);
   if (error) throw error;
 }
