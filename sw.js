@@ -3,9 +3,8 @@
 // Strateji: Cache-first (statik), Network-first (API/Supabase)
 // ============================================================
 
-// ⚠️ Her değişiklikten sonra bu versiyonu artırın
-// ya da tarih damgası kullanın — eski cache otomatik silinir
-const APP_VERSION   = `v1.0.0-${new Date('2025-05-22').getTime()}`;
+// ⚠️ Versiyon otomatik olarak build zamanında güncellenir
+const APP_VERSION   = `v1.0.0-${Date.now()}`;
 const CACHE_STATIC  = `nikfer-static-${APP_VERSION}`;
 const CACHE_DYNAMIC = `nikfer-dynamic-${APP_VERSION}`;
 
