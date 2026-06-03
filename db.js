@@ -50,6 +50,11 @@ export function getSectionBySlug(slug) {
 // ── CONTENT BLOCKS ───────────────────────────────────────────
 
 export function getContentBlocks(sectionId) {
+  return q(supabase.from('content_blocks').select('*').eq('section_id', sectionId).eq('is_visible', true).order('sort_order'));
+}
+
+// Admin için — gizli bloklar da dahil
+export function getAllContentBlocks(sectionId) {
   return q(supabase.from('content_blocks').select('*').eq('section_id', sectionId).order('sort_order'));
 }
 
