@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27><text y=%27.9em%27 font-size=%2790%27>🏡</text></svg>">
 <meta name="robots" content="noindex, nofollow">
 <title>Nikfer Belleği — Admin</title>
@@ -122,18 +121,22 @@ select.form-control{cursor:pointer}
 .spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loading-row{text-align:center;padding:30px;color:var(--text-muted);font-size:13px}
-/* Quill Editor Özelleştirme */
-.quill-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fff}
-.quill-wrap .ql-toolbar{border:none;border-bottom:1px solid var(--border);background:#faf7f2;padding:6px 8px;flex-wrap:wrap}
-.quill-wrap .ql-toolbar .ql-formats{margin-right:8px}
-.quill-wrap .ql-container{border:none;font-size:13px;min-height:120px;max-height:320px;overflow-y:auto}
-.quill-wrap .ql-editor{padding:10px 12px;line-height:1.8;color:var(--text)}
-.quill-wrap .ql-editor p{margin-bottom:6px}
+/* Özel İçerik Editörü */
+.rte-wrap{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:#fff}
+.rte-toolbar{border-bottom:1px solid var(--border);background:#faf7f2;padding:6px 8px;display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.rte-btn{background:none;border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:12px;cursor:pointer;color:var(--text);transition:all .15s;display:flex;align-items:center;gap:3px}
+.rte-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+.rte-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.rte-btn i{font-size:14px}
+.rte-divider{width:1px;height:20px;background:var(--border);margin:0 2px}
+.rte-source{width:100%;min-height:120px;max-height:320px;border:none;outline:none;padding:10px 12px;font-size:13px;font-family:monospace;line-height:1.8;color:var(--text);resize:vertical;background:#fff}
+.rte-preview{min-height:120px;max-height:320px;overflow-y:auto;padding:10px 12px;font-size:13px;line-height:1.8;color:var(--text)}
+.rte-preview b,.rte-preview strong{font-weight:700}
+.rte-preview i,.rte-preview em{font-style:italic}
+.rte-preview a{color:var(--primary);text-decoration:underline}
+.rte-mode-badge{font-size:10px;color:var(--text-muted);margin-left:auto;padding:2px 8px;background:rgba(139,69,19,.06);border-radius:10px}
 #block-content{display:none}
 .plain-editor{display:block}
-.quill-wrap{display:none}
-.show-quill .quill-wrap{display:block}
-.show-quill #block-content-plain{display:none}
 
 /* MOBILE RESPONSIVE */
 @media(max-width:768px){
@@ -197,6 +200,7 @@ select.form-control{cursor:pointer}
     </nav>
       <div class="nav-group-title">Sistem</div>
       <button class="nav-link" onclick="showPanel('settings',this)"><i class="ti ti-settings"></i>Site Ayarları</button>
+      <button class="nav-link" onclick="showPanel('backup',this)"><i class="ti ti-database-export"></i>Yedek Al</button>
     <div class="sidebar-footer">
       <button class="nav-link" onclick="doLogout()" style="padding:8px 0;color:rgba(255,255,255,.7)"><i class="ti ti-logout"></i>Çıkış</button>
       <a href="index.html" target="_blank" class="nav-link" style="padding:8px 0;color:rgba(255,255,255,.7);text-decoration:none"><i class="ti ti-external-link"></i>Siteyi Gör</a>
@@ -431,6 +435,72 @@ select.form-control{cursor:pointer}
       </div>
     </div>
 
+    <!-- YEDEK PANELİ -->
+    <div id="panel-backup" class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Yedek Al / Yükle</div>
+          <div class="panel-subtitle">Tüm içeriği JSON formatında indirin veya geri yükleyin</div>
+        </div>
+        <button class="btn btn-primary" onclick="runBackup()">
+          <i class="ti ti-database-export"></i> Şimdi Yedekle
+        </button>
+      </div>
+
+      <div class="alert" style="background:rgba(41,128,185,.08);color:#1A5276;border:1px solid rgba(41,128,185,.2);margin-bottom:16px">
+        <i class="ti ti-info-circle" style="margin-right:6px"></i>
+        Yedek; bölümler, içerik blokları, yorumlar, ses dosyaları, galeri ve linkleri kapsar.
+        Dosyalar (görseller, sesler) Supabase Storage'da kalır — bu yedek yalnızca <strong>veritabanı kayıtlarını</strong> içerir.
+      </div>
+
+      <!-- Yedek yükle -->
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-header"><h3><i class="ti ti-database-import" style="margin-right:6px"></i>Yedek Yükle</h3></div>
+        <div class="card-body">
+          <div class="alert" style="background:rgba(200,50,50,.08);color:#8B1A1A;border:1px solid rgba(200,50,50,.2);margin-bottom:12px">
+            <i class="ti ti-alert-triangle" style="margin-right:6px"></i>
+            <strong>Dikkat:</strong> Yükleme mevcut verilerin üzerine yazar. Önce yedek alın!
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <input type="file" id="restore-file" accept=".json"
+              style="flex:1;border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;background:var(--bg)">
+            <button class="btn btn-danger" onclick="runRestore()" style="background:#8B1A1A;color:#fff;border:none;flex-shrink:0">
+              <i class="ti ti-upload"></i> Yükle
+            </button>
+          </div>
+          <div id="restore-log" style="font-family:monospace;font-size:12px;color:var(--text-muted);min-height:40px;line-height:1.8;margin-top:10px"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><h3>Yedeklenecek Tablolar</h3></div>
+        <div class="card-body" style="padding:0">
+          <table class="data-table">
+            <thead>
+              <tr><th>Tablo</th><th>Kayıt Sayısı</th><th>Durum</th><th style="width:140px">İndir</th></tr>
+            </thead>
+            <tbody id="backup-tbody">
+              <tr><td colspan="4" class="loading-row"><span class="spinner"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>İşlem Günlüğü</h3>
+          <button class="btn btn-ghost btn-sm" onclick="document.getElementById('backup-log').innerHTML=''">
+            <i class="ti ti-trash"></i> Temizle
+          </button>
+        </div>
+        <div class="card-body">
+          <div id="backup-log" style="font-family:monospace;font-size:12px;color:var(--text-muted);min-height:60px;line-height:1.8">
+            Yedek almak için "Şimdi Yedekle" butonuna tıklayın.
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -544,9 +614,25 @@ select.form-control{cursor:pointer}
         <!-- Düz metin alanı (şiir, tablo, kod vb. için) -->
         <textarea class="form-control plain-editor" id="block-content-plain" rows="5"
           placeholder="İçeriği buraya yazın..."></textarea>
-        <!-- Zengin metin editörü (paragraf, alıntı, madde için) -->
-        <div class="quill-wrap">
-          <div id="quill-editor"></div>
+        <!-- Özel zengin metin editörü (paragraf, alıntı, madde için) -->
+        <div class="rte-wrap" id="rte-wrap" style="display:none">
+          <div class="rte-toolbar">
+            <button type="button" class="rte-btn" onclick="rteFormat('bold')" title="Kalın"><i class="ti ti-bold"></i></button>
+            <button type="button" class="rte-btn" onclick="rteFormat('italic')" title="İtalik"><i class="ti ti-italic"></i></button>
+            <button type="button" class="rte-btn" onclick="rteFormat('underline')" title="Altı Çizili"><i class="ti ti-underline"></i></button>
+            <div class="rte-divider"></div>
+            <button type="button" class="rte-btn" onclick="rteLink()" title="Link ekle"><i class="ti ti-link"></i></button>
+            <button type="button" class="rte-btn" onclick="rteClear()" title="Formatı temizle"><i class="ti ti-clear-formatting"></i></button>
+            <div class="rte-divider"></div>
+            <button type="button" class="rte-btn" id="rte-toggle-btn" onclick="rteToggleMode()" title="Kaynak / Önizleme">
+              <i class="ti ti-code"></i> Kaynak
+            </button>
+            <span class="rte-mode-badge" id="rte-mode-badge">Görsel Mod</span>
+          </div>
+          <!-- Kaynak modu -->
+          <textarea class="rte-source" id="rte-source" placeholder="HTML içerik buraya..."></textarea>
+          <!-- Önizleme modu -->
+          <div class="rte-preview" id="rte-preview" style="display:none"></div>
         </div>
         <!-- Gizli alan — her zaman ham değeri saklar -->
         <textarea id="block-content" style="display:none"></textarea>
@@ -680,13 +766,12 @@ select.form-control{cursor:pointer}
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
 <script type="module">
 import {
   supabase,
   signIn, signOut, getSession, onAuthChange,
   getSections, getAllSections, createSection, updateSection, deleteSection,
-  getContentBlocks, createBlock, updateBlock, deleteBlock,
+  getContentBlocks, getAllContentBlocks, createBlock, updateBlock, deleteBlock,
   getAudioFiles, uploadAudio, updateAudio, deleteAudio,
   uploadImage, updateImage, deleteImage, getGallery,
   getLinks, createLink, updateLink, deleteLink,
@@ -697,53 +782,32 @@ import {
 let sections = [];
 let currentSection = null;
 
-// ── AUTH ─────────────────────────────────────────────────────
-// ── QUILL EDITOR ─────────────────────────────────────────────
-let quillInstance = null;
-
-function initQuill() {
-  if (quillInstance) return; // Zaten başlatılmış
-  quillInstance = new Quill('#quill-editor', {
-    theme: 'snow',
-    placeholder: 'Paragraf metnini buraya yazın...',
-    modules: {
-      toolbar: [
-        [{ 'header': [2, 3, false] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ 'color': [] }, { 'background': [] }],
-        [{ 'size': ['small', false, 'large', 'huge'] }],
-        ['blockquote'],
-        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-        [{ 'align': [] }],
-        ['link'],
-        ['clean']
-      ]
-    }
-  });
-}
-
-// Zengin editör mi düz metin mi gösterileceğini belirle
+// ── ÖZEL İÇERİK EDİTÖRÜ (RTE) ───────────────────────────────
 const RICH_TEXT_TYPES = ['paragraph', 'quote', 'list_item', 'heading'];
+let _rteMode = 'source'; // 'source' | 'preview'
 
 function setEditorMode(type) {
-  const group   = document.getElementById('block-content-group');
-  const plain   = document.getElementById('block-content-plain');
+  const plain  = document.getElementById('block-content-plain');
+  const rteWrap = document.getElementById('rte-wrap');
   if (RICH_TEXT_TYPES.includes(type)) {
-    group.classList.add('show-quill');
-    initQuill();
+    plain.style.display   = 'none';
+    rteWrap.style.display = 'block';
   } else {
-    group.classList.remove('show-quill');
+    plain.style.display   = 'block';
+    rteWrap.style.display = 'none';
   }
 }
 
-// Quill içeriğini gizli textarea'ya senkronize et (kaydetmeden önce)
+// Kaydet butonuna basılmadan önce değeri gizli alana yaz
 function syncQuillToTextarea() {
   const type = document.getElementById('block-type').value;
-  if (RICH_TEXT_TYPES.includes(type) && quillInstance) {
-    const html = quillInstance.getSemanticHTML();
-    // Sadece içerik varsa al; boş paragraf bırakma
-    const clean = html === '<p></p>' || html === '<p><br></p>' ? '' : html;
-    document.getElementById('block-content').value = clean;
+  if (RICH_TEXT_TYPES.includes(type)) {
+    let val = document.getElementById('rte-source').value.trim();
+    // Boş satır (2+ enter) = paragraf bölümü
+    val = val.replace(/\n{2,}/g, '</p><p>');
+    // Tek satır sonu = <br>
+    val = val.replace(/\n/g, '<br>');
+    document.getElementById('block-content').value = val;
   } else {
     document.getElementById('block-content').value =
       document.getElementById('block-content-plain').value;
@@ -752,20 +816,102 @@ function syncQuillToTextarea() {
 
 // Editörü doldur (düzenle modunda)
 function fillEditor(type, value) {
+  setEditorMode(type);
   if (RICH_TEXT_TYPES.includes(type)) {
-    setEditorMode(type);
-    if (quillInstance) {
-      if (value && value.trim().startsWith('<')) {
-        quillInstance.clipboard.dangerouslyPasteHTML(value);
-      } else {
-        quillInstance.setText(value || '');
-      }
-    }
+    // Kaydedilen </p><p> ve <br> formatını editör için satır sonuna çevir
+    let display = value || '';
+    display = display.replace(/<\/p><p>/gi, '\n\n');
+    display = display.replace(/<br\s*\/?>/gi, '\n');
+    document.getElementById('rte-source').value = display;
+    if (_rteMode === 'preview') rteShowPreview();
   } else {
-    setEditorMode(type);
     document.getElementById('block-content-plain').value = value || '';
   }
 }
+
+// Kaynak / Önizleme toggle
+window.rteToggleMode = function() {
+  const src     = document.getElementById('rte-source');
+  const preview = document.getElementById('rte-preview');
+  const btn     = document.getElementById('rte-toggle-btn');
+  const badge   = document.getElementById('rte-mode-badge');
+
+  if (_rteMode === 'source') {
+    _rteMode = 'preview';
+    src.style.display     = 'none';
+    preview.style.display = 'block';
+    preview.innerHTML     = src.value || '<span style="color:var(--text-muted);font-size:12px">İçerik yok</span>';
+    btn.innerHTML   = '<i class="ti ti-edit"></i> Düzenle';
+    badge.textContent = 'Önizleme Modu';
+    btn.classList.add('active');
+  } else {
+    _rteMode = 'source';
+    src.style.display     = 'block';
+    preview.style.display = 'none';
+    btn.innerHTML   = '<i class="ti ti-code"></i> Kaynak';
+    badge.textContent = 'Kaynak Modu';
+    btn.classList.remove('active');
+  }
+};
+
+function rteShowPreview() {
+  const src     = document.getElementById('rte-source');
+  const preview = document.getElementById('rte-preview');
+  preview.innerHTML = src.value || '';
+}
+
+// Format butonları — seçili metne tag sarar
+window.rteFormat = function(tag) {
+  // Önizleme modundaysa kaynak moda geç
+  if (_rteMode === 'preview') rteToggleMode();
+
+  const ta    = document.getElementById('rte-source');
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  const sel   = ta.value.substring(start, end);
+
+  const tagMap = { bold: 'b', italic: 'i', underline: 'u' };
+  const t = tagMap[tag];
+  if (!t) return;
+
+  const wrapped = sel ? `<${t}>${sel}</${t}>` : `<${t}></${t}>`;
+  ta.setRangeText(wrapped, start, end, 'end');
+  ta.focus();
+};
+
+// Link ekle
+window.rteLink = function() {
+  // Önizleme modundaysa kaynak moda geç
+  if (_rteMode === 'preview') rteToggleMode();
+
+  const ta    = document.getElementById('rte-source');
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  const sel   = ta.value.substring(start, end);
+  const url   = prompt('Link URL:', 'https://');
+  if (!url) return;
+  const text    = sel || url;
+  const wrapped = `<a href="${url}" target="_blank">${text}</a>`;
+  ta.setRangeText(wrapped, start, end, 'end');
+  ta.focus();
+};
+
+// Format temizle — basit HTML etiketlerini kaldır
+window.rteClear = function() {
+  // Önizleme modundaysa kaynak moda geç
+  if (_rteMode === 'preview') rteToggleMode();
+
+  const ta    = document.getElementById('rte-source');
+  const start = ta.selectionStart;
+  const end   = ta.selectionEnd;
+  const sel   = ta.value.substring(start, end);
+  if (!sel) return;
+  const clean = sel.replace(/<[^>]+>/g, '');
+  ta.setRangeText(clean, start, end, 'end');
+  ta.focus();
+};
+
+
 
 onAuthChange((event, session) => {
   if (session) showAdmin();
@@ -828,6 +974,7 @@ window.showPanel = function(id, btn) {
   if (id === 'sections') loadSections();
   if (id === 'comments') loadComments('all');
   if (id === 'settings') loadSettings();
+  if (id === 'backup')   loadBackupStats();
 };
 
 // ── DASHBOARD ─────────────────────────────────────────────────
@@ -1078,7 +1225,7 @@ window.loadBlocks = async function(sectionId) {
   _currentSectionId = sectionId;
   const tbody = document.getElementById('blocks-tbody');
   tbody.innerHTML = '<tr><td colspan="4" class="loading-row"><span class="spinner"></span></td></tr>';
-  const blocks = await getContentBlocks(sectionId);
+  const blocks = await getAllContentBlocks(sectionId);
   _currentBlocks = blocks;
   renderBlocksTable(blocks, sectionId);
 };
@@ -1095,20 +1242,26 @@ function renderBlocksTable(blocks, sectionId) {
   const typeColors = {paragraph:'blue',heading:'purple',quote:'yellow',poem:'green',list_item:'blue',info_row:'yellow',table_row:'blue',note:'red',divider:'blue'};
   let rows = '';
   blocks.forEach((b, idx) => {
-    const isFirst = idx === 0;
-    const isLast  = idx === blocks.length - 1;
-    const preview = (b.content || '—').replace(/</g,'&lt;').replace(/"/g,'&quot;').slice(0,65) + ((b.content||'').length > 65 ? '…' : '');
-    const color   = typeColors[b.type] || 'blue';
-    // Güvenli yol: onclick içine VERİ koymuyoruz, sadece ID ile cache'den çekiyoruz
-    rows += `<tr>
+    const isFirst   = idx === 0;
+    const isLast    = idx === blocks.length - 1;
+    const isVisible = b.is_visible !== false;
+    const preview   = (b.content || '—').replace(/</g,'&lt;').replace(/"/g,'&quot;').slice(0,65) + ((b.content||'').length > 65 ? '…' : '');
+    const color     = typeColors[b.type] || 'blue';
+    rows += `<tr style="${isVisible ? '' : 'opacity:.45;background:rgba(0,0,0,.02)'}">
       <td style="font-weight:700;color:var(--primary);text-align:center;width:36px">${idx + 1}</td>
-      <td style="width:90px"><span class="badge badge-${color}" style="white-space:nowrap;font-size:9px">${b.type}</span></td>
+      <td style="width:90px">
+        <span class="badge badge-${color}" style="white-space:nowrap;font-size:9px">${b.type}</span>
+        ${!isVisible ? '<span style="font-size:9px;color:var(--danger);display:block;margin-top:2px">gizli</span>' : ''}
+      </td>
       <td style="font-size:11px;color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${preview}</td>
-      <td style="width:190px">
+      <td style="width:210px">
         <div style="display:flex;gap:3px;align-items:center">
           <button class="btn btn-ghost btn-sm btn-icon" title="Yukarı" ${isFirst?'disabled style="opacity:.3"':''} onclick="moveBlock('${b.id}',-1)"><i class="ti ti-arrow-up"></i></button>
           <button class="btn btn-ghost btn-sm btn-icon" title="Aşağı" ${isLast?'disabled style="opacity:.3"':''} onclick="moveBlock('${b.id}',1)"><i class="ti ti-arrow-down"></i></button>
           <button class="btn btn-sm btn-icon" title="Altına ekle" style="background:rgba(39,174,96,.1);color:#1E8449;border:1px solid rgba(39,174,96,.3)" onclick="openBlockModalAfter(${idx+1})"><i class="ti ti-plus"></i></button>
+          <button class="btn btn-ghost btn-sm btn-icon" title="${isVisible ? 'Gizle' : 'Göster'}" onclick="toggleBlockVisibility('${b.id}',${isVisible})">
+            <i class="ti ti-${isVisible ? 'eye' : 'eye-off'}"></i>
+          </button>
           <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" data-block-id="${b.id}" onclick="editBlockById(this.dataset.blockId)"><i class="ti ti-pencil"></i></button>
           <button class="btn btn-danger btn-sm btn-icon" title="Sil" onclick="deleteBlockUI('${b.id}','${sectionId}')"><i class="ti ti-trash"></i></button>
         </div>
@@ -1123,6 +1276,15 @@ window.editBlockById = function(blockId) {
   const b = _currentBlocks.find(x => x.id === blockId);
   if (!b) { alert('Blok bulunamadı, sayfayı yenileyin.'); return; }
   editBlock(b);
+};
+
+window.toggleBlockVisibility = async function(blockId, currentlyVisible) {
+  try {
+    await updateBlock(blockId, { is_visible: !currentlyVisible });
+    await loadBlocks(_currentSectionId);
+  } catch(e) {
+    alert('Hata: ' + e.message);
+  }
 };
 
 window.moveBlock = async function(blockId, direction) {
@@ -1144,7 +1306,7 @@ window.moveBlock = async function(blockId, direction) {
 };
 
 async function normalizeBlockOrders(sectionId) {
-  const blocks = await getContentBlocks(sectionId);
+  const blocks = await getAllContentBlocks(sectionId);
   await Promise.all(blocks.map((b,i) => updateBlock(b.id, {sort_order:(i+1)*10})));
 }
 
@@ -1177,7 +1339,7 @@ window.openBlockModal = function() {
   document.getElementById('block-content-plain').value  = '';
   document.getElementById('block-meta').value           = '';
   document.getElementById('block-type').value           = 'paragraph';
-  if (quillInstance) quillInstance.setContents([]);
+  document.getElementById('rte-source').value           = '';
   onBlockTypeChange();
   if (_currentSectionId) {
     document.getElementById('block-section-id').value = _currentSectionId;
@@ -1228,7 +1390,7 @@ window.onBlockTypeChange = function() {
 };
 
 window.saveBlockUI = async function() {
-  syncQuillToTextarea(); // Quill içeriğini textarea'ya aktar
+  syncQuillToTextarea(); // Editör içeriğini textarea'ya aktar
   const id      = document.getElementById('block-id').value;
   const alert   = document.getElementById('block-modal-alert');
   let meta = {};
@@ -1620,6 +1782,197 @@ window.closeModal = id => {
 document.querySelectorAll('.modal-bg').forEach(bg => {
   bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
 });
+
+// ── YEDEKLEME ────────────────────────────────────────────────
+
+const BACKUP_TABLES = [
+  { key: 'sections',       label: 'Bölümler',        query: () => supabase.from('sections').select('*').order('sort_order') },
+  { key: 'content_blocks', label: 'İçerik Blokları', query: () => supabase.from('content_blocks').select('*').order('sort_order') },
+  { key: 'comments',       label: 'Yorumlar',         query: () => supabase.from('comments').select('*').order('created_at') },
+  { key: 'audio_files',    label: 'Ses Dosyaları',    query: () => supabase.from('audio_files').select('*').order('sort_order') },
+  { key: 'gallery',        label: 'Galeri',           query: () => supabase.from('gallery').select('*').order('sort_order') },
+  { key: 'links',          label: 'Linkler',          query: () => supabase.from('links').select('*').order('sort_order') },
+  { key: 'site_settings',  label: 'Site Ayarları',    query: () => supabase.from('site_settings').select('*') },
+];
+
+async function loadBackupStats() {
+  const tbody = document.getElementById('backup-tbody');
+  tbody.innerHTML = '<tr><td colspan="4" class="loading-row"><span class="spinner"></span></td></tr>';
+  const rows = await Promise.all(
+    BACKUP_TABLES.map(async t => {
+      const { count, error } = await supabase.from(t.key).select('*', { count: 'exact', head: true });
+      return { ...t, count: error ? '⚠️' : (count ?? 0), error };
+    })
+  );
+  tbody.innerHTML = rows.map(r => `
+    <tr>
+      <td style="font-weight:600">${r.label}</td>
+      <td>${r.error ? '<span style="color:var(--danger)">Erişim hatası</span>' : r.count + ' kayıt'}</td>
+      <td>${r.error ? '<span class="badge badge-red">Hata</span>' : '<span class="badge badge-green">Hazır</span>'}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="backupSingleTable('${r.key}','${r.label}')">
+          <i class="ti ti-download"></i> İndir
+        </button>
+      </td>
+    </tr>`).join('');
+}
+
+function backupLog(msg, type = 'info') {
+  const log   = document.getElementById('backup-log');
+  const color = type === 'ok' ? 'var(--success)' : type === 'err' ? 'var(--danger)' : 'var(--text-muted)';
+  const icon  = type === 'ok' ? '✓' : type === 'err' ? '✗' : '›';
+  log.innerHTML += `<div style="color:${color}">${icon} ${new Date().toLocaleTimeString('tr-TR')} — ${msg}</div>`;
+  log.scrollTop  = log.scrollHeight;
+}
+
+function downloadJSON(data, filename) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+window.backupSingleTable = async function(tableKey, label) {
+  backupLog(`${label} indiriliyor...`);
+  const t = BACKUP_TABLES.find(t => t.key === tableKey);
+  const { data, error } = await t.query();
+  if (error) { backupLog(`${label} hatası: ${error.message}`, 'err'); return; }
+  const date = new Date().toISOString().slice(0, 10);
+  downloadJSON({ table: tableKey, exported_at: new Date().toISOString(), count: data.length, data },
+    `nikfer-${tableKey}-${date}.json`);
+  backupLog(`${label}: ${data.length} kayıt indirildi.`, 'ok');
+};
+
+window.runBackup = async function() {
+  document.getElementById('backup-log').innerHTML = '';
+  backupLog('Tam yedekleme başlatılıyor...');
+  const backup = { exported_at: new Date().toISOString(), version: '1.0', tables: {} };
+  let totalRecords = 0;
+  let hasError     = false;
+
+  for (const t of BACKUP_TABLES) {
+    backupLog(`${t.label} çekiliyor...`);
+    const { data, error } = await t.query();
+    if (error) { backupLog(`${t.label} hatası: ${error.message}`, 'err'); hasError = true; continue; }
+    backup.tables[t.key] = data;
+    totalRecords += data.length;
+    backupLog(`${t.label}: ${data.length} kayıt ✓`, 'ok');
+  }
+
+  const date     = new Date().toISOString().slice(0, 10);
+  const filename = `nikfer-tam-yedek-${date}.json`;
+  downloadJSON(backup, filename);
+  backupLog('─'.repeat(40));
+  backupLog(
+    hasError
+      ? `Yedek tamamlandı (bazı hata). Toplam: ${totalRecords} kayıt → ${filename}`
+      : `Yedek başarıyla tamamlandı! Toplam: ${totalRecords} kayıt → ${filename}`,
+    hasError ? 'err' : 'ok'
+  );
+  loadBackupStats();
+};
+
+// Yedek yükleme sırası — bağımlılık sırasına göre
+const RESTORE_ORDER = [
+  'sections',
+  'content_blocks',
+  'audio_files',
+  'links',
+  'gallery',
+  'comments',
+  'site_settings',
+];
+
+function restoreLog(msg, type = 'info') {
+  const log   = document.getElementById('restore-log');
+  const color = type === 'ok' ? 'var(--success)' : type === 'err' ? 'var(--danger)' : 'var(--text-muted)';
+  const icon  = type === 'ok' ? '✓' : type === 'err' ? '✗' : '›';
+  log.innerHTML += `<div style="color:${color}">${icon} ${new Date().toLocaleTimeString('tr-TR')} — ${msg}</div>`;
+  log.scrollTop  = log.scrollHeight;
+}
+
+window.runRestore = async function() {
+  const fileInput = document.getElementById('restore-file');
+  const file      = fileInput.files[0];
+  if (!file) { alert('Lütfen bir JSON yedek dosyası seçin.'); return; }
+
+  if (!confirm('Bu işlem mevcut verilerin üzerine yazacak. Devam etmek istiyor musunuz?')) return;
+
+  document.getElementById('restore-log').innerHTML = '';
+  restoreLog('Dosya okunuyor...');
+
+  let backup;
+  try {
+    const text = await file.text();
+    backup = JSON.parse(text);
+  } catch(e) {
+    restoreLog('Dosya okunamadı: ' + e.message, 'err');
+    return;
+  }
+
+  // Tek tablo yedeği mi, tam yedek mi?
+  const tables = backup.tables || (backup.table ? { [backup.table]: backup.data } : null);
+  if (!tables) { restoreLog('Geçersiz yedek formatı.', 'err'); return; }
+
+  restoreLog(`Yedek tarihi: ${backup.exported_at || 'Bilinmiyor'}`);
+
+  let totalInserted = 0;
+  let hasError      = false;
+
+  for (const key of RESTORE_ORDER) {
+    const rows = tables[key];
+    if (!rows || !rows.length) continue;
+
+    const t = BACKUP_TABLES.find(t => t.key === key);
+    restoreLog(`${t?.label || key} yükleniyor (${rows.length} kayıt)...`);
+
+    // Önce mevcut verileri temizle
+    const { error: delErr } = await supabase.from(key).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    if (delErr) {
+      // site_settings için id kolonu yok, key ile sil
+      if (key === 'site_settings') {
+        await supabase.from(key).delete().neq('key', '____never____');
+      } else {
+        restoreLog(`${t?.label || key} temizlenemedi: ${delErr.message}`, 'err');
+        hasError = true;
+        continue;
+      }
+    }
+
+    // Toplu insert (50'şer)
+    const chunkSize = 50;
+    let inserted    = 0;
+    for (let i = 0; i < rows.length; i += chunkSize) {
+      const chunk = rows.slice(i, i + chunkSize);
+      const { error: insErr } = await supabase.from(key).insert(chunk);
+      if (insErr) {
+        restoreLog(`${t?.label || key} yükleme hatası: ${insErr.message}`, 'err');
+        hasError = true;
+        break;
+      }
+      inserted += chunk.length;
+    }
+
+    if (!hasError || inserted > 0) {
+      totalInserted += inserted;
+      restoreLog(`${t?.label || key}: ${inserted} kayıt yüklendi ✓`, 'ok');
+    }
+  }
+
+  restoreLog('─'.repeat(40));
+  restoreLog(
+    hasError
+      ? `Yükleme tamamlandı (bazı hatalar). Toplam: ${totalInserted} kayıt yüklendi.`
+      : `Yükleme başarıyla tamamlandı! Toplam: ${totalInserted} kayıt yüklendi.`,
+    hasError ? 'err' : 'ok'
+  );
+
+  loadBackupStats();
+  fileInput.value = '';
+};
 </script>
 </body>
 </html>
