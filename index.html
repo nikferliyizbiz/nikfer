@@ -1342,7 +1342,7 @@ window.showPage = function(id, btn) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   btn.classList.add('active');
-  if (id === 'obits' && !_allObits.length) loadObits();
+  if (id === 'obits' && !_obitsState.items.length) loadObits();
 };
 
 // ── DEEP LINK ─────────────────────────────────────────────
