@@ -50,6 +50,11 @@ export function getSectionBySlug(slug) {
 // ── CONTENT BLOCKS ───────────────────────────────────────────
 
 export function getContentBlocks(sectionId) {
+  return q(supabase.from('content_blocks').select('*').eq('section_id', sectionId).eq('is_visible', true).order('sort_order'));
+}
+
+// Admin için — gizli bloklar da dahil
+export function getAllContentBlocks(sectionId) {
   return q(supabase.from('content_blocks').select('*').eq('section_id', sectionId).order('sort_order'));
 }
 
@@ -191,50 +196,6 @@ export async function getStatCounts() {
     console.error('getStatCounts hatası:', e);
     return { sectionCount: 0, commentCount: 0, muhtarCount: 0, sehitCount: 0 };
   }
-}
-
-// ── OBITS (Kaybettiklerimiz) ──────────────────────────────────
-
-// Yıl bazlı sayılar — hafif sorgu
-export async function getObitYearCounts() {
-  const { data, error } = await supabase
-    .from('obits')
-    .select('death_date')
-    .eq('is_visible', true);
-  if (error) throw error;
-
-  const counts = {};
-  data.forEach(o => {
-    const year = o.death_date ? o.death_date.slice(0, 4) : 'Bilinmiyor';
-    counts[year] = (counts[year] || 0) + 1;
-  });
-  return counts;
-}
-
-// Sayfalı listeleme
-export async function getObitsPaged({ page = 0, pageSize = 25, year = null, search = null } = {}) {
-  let builder = supabase
-    .from('obits')
-    .select('*', { count: 'exact' })
-    .eq('is_visible', true)
-    .order('death_date', { ascending: false, nullsFirst: false })
-    .range(page * pageSize, (page + 1) * pageSize - 1);
-
-  if (year && year !== 'Bilinmiyor') {
-    builder = builder
-      .gte('death_date', `${year}-01-01`)
-      .lte('death_date', `${year}-12-31`);
-  } else if (year === 'Bilinmiyor') {
-    builder = builder.is('death_date', null);
-  }
-
-  if (search) {
-    builder = builder.ilike('full_name', `%${search}%`);
-  }
-
-  const { data, count, error } = await builder;
-  if (error) throw error;
-  return { data, count };
 }
 
 // ── AUTH ─────────────────────────────────────────────────────
