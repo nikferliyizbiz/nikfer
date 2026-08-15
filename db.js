@@ -90,6 +90,11 @@ export function getLinks(sectionId) {
 // ── GALLERY ──────────────────────────────────────────────────
 
 export function getGallery(sectionId) {
+  return q(supabase.from('gallery').select('*').eq('section_id', sectionId).eq('is_visible', true).order('sort_order'));
+}
+
+// Admin için — gizli fotoğraflar da dahil
+export function getAllGallery(sectionId) {
   return q(supabase.from('gallery').select('*').eq('section_id', sectionId).order('sort_order'));
 }
 
