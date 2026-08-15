@@ -407,10 +407,22 @@ textarea.form-input{resize:none;min-height:72px}
   <section id="page-obits" class="page">
     <div class="obits-search">
       <i class="ti ti-search"></i>
-      <input type="text" id="obits-search-input" placeholder="İsim ara..." oninput="searchObitsUI(this.value)">
+      <input type="text" id="obits-search-input" placeholder="İsim ara..." oninput="obitsSearchChanged(this.value)">
+    </div>
+    <div class="chip-row" id="obits-year-chips">
+      <div class="loading" style="padding:4px 0"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div></div>
     </div>
     <div id="obits-list">
       <div class="loading"><div class="spinner"></div></div>
+    </div>
+    <div id="obits-load-more" style="display:none;text-align:center;padding:12px 0">
+      <button onclick="loadMoreObits()"
+        style="background:none;border:1px solid var(--primary);color:var(--primary);border-radius:8px;padding:8px 20px;font-size:13px;cursor:pointer;font-weight:500">
+        <i class="ti ti-chevron-down" style="margin-right:4px"></i>Daha fazla yükle
+      </button>
+    </div>
+    <div id="obits-loading-more" style="display:none;text-align:center;padding:12px 0">
+      <div class="spinner" style="margin:0 auto"></div>
     </div>
   </section>
 
@@ -496,7 +508,7 @@ import {
   getFeaturedSections, getRecentComments,
   getSiteSettings, getStatCounts,
   getApprovedComments, submitComment,
-  getObits, searchObits
+  getObitYearCounts, getObitsPaged
 } from './db.js';
 
 // ── CACHE ──────────────────────────────────────────────────
@@ -1149,40 +1161,120 @@ window.filterCommentsUI = async function(sectionId) {
 };
 
 // ── KAYBETTİKLERİMİZ ─────────────────────────────────────────
-let _allObits = [];
+const OBITS_PAGE_SIZE = 25;
+let _obitsState = {
+  page: 0,
+  year: null,
+  search: '',
+  total: 0,
+  items: [],
+  loading: false,
+};
 
 async function loadObits() {
+  // Yıl chip'lerini yükle
+  loadObitYearChips();
+  // İlk sayfayı yükle
+  await fetchObits(true);
+}
+
+async function loadObitYearChips() {
+  const chipsEl = document.getElementById('obits-year-chips');
   try {
-    _allObits = await getObits();
-    renderObits(_allObits);
+    const counts = await getObitYearCounts();
+    const years  = Object.keys(counts).sort((a, b) => b.localeCompare(a));
+    const total  = Object.values(counts).reduce((a, b) => a + b, 0);
+
+    chipsEl.innerHTML = `
+      <div class="chip active" onclick="obitsYearChanged(null, this)">
+        Tümü · ${total}
+      </div>
+      ${years.map(y => `
+        <div class="chip" onclick="obitsYearChanged('${y}', this)">
+          ${y} · ${counts[y]}
+        </div>`).join('')}`;
   } catch(e) {
-    document.getElementById('obits-list').innerHTML =
-      `<div class="error-msg">Veriler yüklenemedi: ${e.message}</div>`;
+    chipsEl.innerHTML = '';
   }
 }
 
-function renderObits(list) {
+async function fetchObits(reset = false) {
+  if (_obitsState.loading) return;
+  _obitsState.loading = true;
+
+  if (reset) {
+    _obitsState.page  = 0;
+    _obitsState.items = [];
+    document.getElementById('obits-list').innerHTML =
+      '<div class="loading"><div class="spinner"></div></div>';
+  } else {
+    document.getElementById('obits-loading-more').style.display = 'block';
+    document.getElementById('obits-load-more').style.display    = 'none';
+  }
+
+  try {
+    const { data, count } = await getObitsPaged({
+      page:     _obitsState.page,
+      pageSize: OBITS_PAGE_SIZE,
+      year:     _obitsState.year,
+      search:   _obitsState.search || null,
+    });
+
+    _obitsState.total  = count;
+    _obitsState.items  = reset ? data : [..._obitsState.items, ...data];
+    _obitsState.page  += 1;
+
+    renderObitsList(_obitsState.items, reset);
+
+    // Daha fazla var mı?
+    const hasMore = _obitsState.items.length < count;
+    document.getElementById('obits-load-more').style.display    = hasMore ? 'block' : 'none';
+    document.getElementById('obits-loading-more').style.display = 'none';
+
+  } catch(e) {
+    document.getElementById('obits-list').innerHTML =
+      `<div class="error-msg">Veriler yüklenemedi: ${e.message}</div>`;
+  } finally {
+    _obitsState.loading = false;
+  }
+}
+
+function renderObitsList(items, reset = false) {
   const el = document.getElementById('obits-list');
-  if (!list.length) {
-    el.innerHTML = `<div class="obits-empty"><i class="ti ti-search" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>Sonuç bulunamadı.</div>`;
+
+  if (!items.length) {
+    el.innerHTML = `<div class="obits-empty">
+      <i class="ti ti-search" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>
+      Sonuç bulunamadı.
+    </div>`;
     return;
   }
 
-  // Yıla göre grupla
+  if (reset) {
+    // Yıla göre grupla
+    el.innerHTML = renderObitsByYear(items);
+  } else {
+    // Mevcut gruplara ekle — son grubu bul ve devam et
+    el.innerHTML = renderObitsByYear(items);
+  }
+}
+
+function renderObitsByYear(items) {
   const groups = {};
-  list.forEach(o => {
+  items.forEach(o => {
     const year = o.death_date ? o.death_date.slice(0, 4) : 'Bilinmiyor';
     if (!groups[year]) groups[year] = [];
     groups[year].push(o);
   });
 
-  // Yılları büyükten küçüğe sırala
   const sortedYears = Object.keys(groups).sort((a, b) => b.localeCompare(a));
 
-  el.innerHTML = sortedYears.map(year => `
+  return sortedYears.map(year => `
     <div class="obits-year-group">
       <div class="obits-year-header">
-        <span class="obits-year-title"><i class="ti ti-calendar" style="margin-right:6px;font-size:13px"></i>${year}</span>
+        <span class="obits-year-title">
+          <i class="ti ti-calendar" style="margin-right:6px;font-size:13px"></i>${year}
+        </span>
         <span class="obits-year-count">${groups[year].length} kişi</span>
       </div>
       ${groups[year].map(o => obitItemHTML(o)).join('')}
@@ -1214,15 +1306,34 @@ function obitItemHTML(o) {
   </div>`;
 }
 
-window.searchObitsUI = function(q) {
-  if (!q.trim()) {
-    renderObits(_allObits);
-    return;
-  }
-  const filtered = _allObits.filter(o =>
-    o.full_name.toLowerCase().includes(q.toLowerCase())
-  );
-  renderObits(filtered);
+// Yıl filtresi değişti
+window.obitsYearChanged = function(year, btn) {
+  document.querySelectorAll('#obits-year-chips .chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  _obitsState.year   = year;
+  _obitsState.search = '';
+  document.getElementById('obits-search-input').value = '';
+  fetchObits(true);
+};
+
+// Arama değişti — debounce ile
+let _obitsSearchTimer = null;
+window.obitsSearchChanged = function(val) {
+  clearTimeout(_obitsSearchTimer);
+  _obitsSearchTimer = setTimeout(() => {
+    _obitsState.search = val.trim();
+    _obitsState.year   = null;
+    // Yıl chip'lerini sıfırla
+    document.querySelectorAll('#obits-year-chips .chip').forEach((c, i) => {
+      c.classList.toggle('active', i === 0);
+    });
+    fetchObits(true);
+  }, 400);
+};
+
+// Daha fazla yükle
+window.loadMoreObits = function() {
+  fetchObits(false);
 };
 
 // ── NAVİGASYON ────────────────────────────────────────────
