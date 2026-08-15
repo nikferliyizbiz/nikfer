@@ -50,11 +50,6 @@ export function getSectionBySlug(slug) {
 // ── CONTENT BLOCKS ───────────────────────────────────────────
 
 export function getContentBlocks(sectionId) {
-  return q(supabase.from('content_blocks').select('*').eq('section_id', sectionId).eq('is_visible', true).order('sort_order'));
-}
-
-// Admin için — gizli bloklar da dahil
-export function getAllContentBlocks(sectionId) {
   return q(supabase.from('content_blocks').select('*').eq('section_id', sectionId).order('sort_order'));
 }
 
@@ -196,6 +191,27 @@ export async function getStatCounts() {
     console.error('getStatCounts hatası:', e);
     return { sectionCount: 0, commentCount: 0, muhtarCount: 0, sehitCount: 0 };
   }
+}
+
+// ── OBITS (Kaybettiklerimiz) ──────────────────────────────────
+
+export async function getObits() {
+  return q(
+    supabase.from('obits')
+      .select('*')
+      .eq('is_visible', true)
+      .order('death_date', { ascending: false, nullsFirst: false })
+  );
+}
+
+export async function searchObits(query) {
+  return q(
+    supabase.from('obits')
+      .select('*')
+      .eq('is_visible', true)
+      .ilike('full_name', `%${query}%`)
+      .order('death_date', { ascending: false, nullsFirst: false })
+  );
 }
 
 // ── AUTH ─────────────────────────────────────────────────────
