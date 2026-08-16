@@ -190,6 +190,34 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .tl-year{font-size:11px;font-weight:700;color:var(--primary);margin-bottom:3px}
 .tl-text{font-size:12px;color:var(--text);line-height:1.5}
 
+/* TARİH ÖNIZLEME KARTLARI */
+.tarih-cards{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:14px}
+@media(min-width:600px){.tarih-cards{grid-template-columns:1fr 1fr}}
+@media(min-width:1100px){.tarih-cards{grid-template-columns:1fr 1fr 1fr 1fr}}
+.tarih-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
+.tarih-card-header{background:var(--primary);padding:10px 14px;display:flex;align-items:center;gap:8px}
+.tarih-card-header i{color:var(--accent-light);font-size:18px}
+.tarih-card-header h3{color:#fff;font-size:13px;font-weight:600;flex:1}
+.tarih-card-body{padding:10px 14px;flex:1}
+.tarih-card-footer{padding:8px 14px;border-top:1px solid var(--border)}
+.tarih-card-footer button{background:none;border:none;color:var(--primary);font-size:12px;font-weight:600;cursor:pointer;width:100%;text-align:left;padding:2px 0}
+.tarih-card-footer button:hover{text-decoration:underline}
+/* Kronoloji satırı */
+.tc-tl-item{display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.tc-tl-item:last-child{border-bottom:none}
+.tc-tl-year{color:var(--primary);font-weight:700;flex-shrink:0;min-width:54px}
+.tc-tl-text{color:var(--text);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Şehit satırı */
+.tc-sehit-item{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.tc-sehit-item:last-child{border-bottom:none}
+.tc-sehit-name{color:var(--text);font-weight:600}
+.tc-sehit-date{color:var(--text-muted);flex-shrink:0;margin-left:8px}
+/* Muhtar satırı */
+.tc-muhtar-item{display:flex;justify-content:space-between;align-items:baseline;padding:5px 0;border-bottom:1px solid var(--border);font-size:11px}
+.tc-muhtar-item:last-child{border-bottom:none}
+.tc-muhtar-name{color:var(--text);font-weight:600}
+.tc-muhtar-donem{color:var(--text-muted);flex-shrink:0;margin-left:8px}
+
 /* CHIP FILTER */
 .chip-row{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:10px;scrollbar-width:none}
 .chip-row::-webkit-scrollbar{display:none}
@@ -240,7 +268,7 @@ textarea.form-input{resize:none;min-height:72px}
 .lightbox-img-wrap{touch-action:pan-y}
 
 /* OBITS — Kaybettiklerimiz */
-.obits-search{position:relative;margin-bottom:12px}
+.obits-search{position:relative;margin-bottom:8px}
 .obits-search i{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--text-muted)}
 .obits-search input{width:100%;padding:10px 14px 10px 38px;border:1px solid var(--border);border-radius:10px;font-size:13px;background:var(--bg-card);color:var(--text);outline:none;font-family:inherit}
 .obits-search input:focus{border-color:var(--primary)}
@@ -324,11 +352,8 @@ textarea.form-input{resize:none;min-height:72px}
   <!-- KÜLTÜR -->
   <section id="page-kultur" class="page">
     <div class="sec-title">Dil & Kültür</div>
-    <div class="menu-grid">
-      <div class="menu-item" onclick="openSection('sozluk')"><i class="ti ti-book"></i><span>Nikferce Sözlük</span></div>
-      <div class="menu-item" onclick="openSection('bilmeceler')"><i class="ti ti-puzzle"></i><span>Bilmeceler</span></div>
-      <div class="menu-item" onclick="openSection('siir')"><i class="ti ti-feather"></i><span>Şiir & Türküler</span></div>
-      <div class="menu-item" onclick="openSection('nikferli-olmak')"><i class="ti ti-heart"></i><span>Nikferli Olmak</span></div>
+    <div class="menu-grid" id="kultur-grid">
+      <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
     </div>
     <div class="sec-title">Sözlükten Örnekler</div>
     <div class="card">
@@ -347,26 +372,12 @@ textarea.form-input{resize:none;min-height:72px}
   <!-- TARİH -->
   <section id="page-tarih" class="page">
     <div class="sec-title">Tarih & Hafıza</div>
-    <div class="menu-grid">
-      <div class="menu-item" onclick="openSection('koklere')"><i class="ti ti-crown"></i><span>Köklerimize Yolculuk</span></div>
-      <div class="menu-item" onclick="openSection('muhtarlar')"><i class="ti ti-building-community"></i><span>Muhtarlar</span></div>
-      <div class="menu-item" onclick="openSection('kronoloji')"><i class="ti ti-timeline"></i><span>Kronoloji</span></div>
-      <div class="menu-item" onclick="openSection('canakkale')"><i class="ti ti-flag"></i><span>Şehitlerimiz</span></div>
+    <div class="menu-grid" id="tarih-grid">
+      <div class="loading" style="grid-column:1/-1"><div class="spinner"></div></div>
     </div>
     <div class="sec-title">Hızlı Bakış</div>
-    <div class="card">
-      <div class="card-body">
-        <div class="timeline">
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">M.Ö. ~700</div><div class="tl-text">Lidya dönemi Deliktaş yapılır.</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1365</div><div class="tl-text">Menteşe Beyliği'ne katılım.</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1424</div><div class="tl-text">Osmanlı hâkimiyeti başlar.</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1842</div><div class="tl-text">İlk muhtar Çolak Kâhya seçilir.</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1954</div><div class="tl-text">Belediye kurulur.</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">1968</div><div class="tl-text">İlk 350 Nikferli Almanya'ya gider.</div></div>
-          <div class="tl-item"><div class="tl-dot"></div><div class="tl-year">2005</div><div class="tl-text">Kasaba adı Nikfer olarak geri verilir.</div></div>
-        </div>
-        <button onclick="openSection('kronoloji')" style="background:none;border:1px solid var(--primary);color:var(--primary);border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;font-weight:500;width:100%;margin-top:6px">Tam Kronoloji →</button>
-      </div>
+    <div id="tarih-preview-cards" class="tarih-cards">
+      <div class="loading"><div class="spinner"></div></div>
     </div>
   </section>
 
@@ -428,7 +439,6 @@ textarea.form-input{resize:none;min-height:72px}
     <div id="obits-loading-more" style="display:none;text-align:center;padding:12px 0">
       <div class="spinner" style="margin:0 auto"></div>
     </div>
-
     <!-- Eksik kayıt bildirimi -->
     <div style="background:rgba(139,69,19,.05);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:8px;display:flex;align-items:center;gap:12px">
       <i class="ti ti-info-circle" style="font-size:22px;color:var(--primary);flex-shrink:0"></i>
@@ -566,6 +576,8 @@ async function init() {
   await loadComments();
   loadMiniSozluk();
   loadGununBilmecesi();
+  loadPageGrids();
+  loadTarihPreviewCards();
   handleDeepLink();
 }
 
@@ -997,6 +1009,153 @@ window.toggleBilmece = function(id, btn) {
 };
 function initBilmeceBtns() {} // hooks handled via onclick in HTML
 
+// ── SAYFA GRİDLERİ (Kültür / Tarih) ─────────────────────────
+async function loadPageGrids() {
+  try {
+    const sections = cache.sections || [];
+    ['kultur', 'tarih'].forEach(page => {
+      const grid = document.getElementById(`${page}-grid`);
+      if (!grid) return;
+      const items = sections.filter(s => s.page === page);
+      if (!items.length) { grid.innerHTML = ''; return; }
+      grid.innerHTML = items.map(s => `
+        <div class="menu-item" onclick="openSection('${s.slug}')">
+          <i class="ti ti-${s.icon || 'book'}"></i>
+          <span>${s.title}</span>
+        </div>`).join('');
+    });
+  } catch(e) {
+    console.error('loadPageGrids hatası:', e);
+  }
+}
+
+// ── TARİH ÖNIZLEME KARTLARI ──────────────────────────────────
+async function loadTarihPreviewCards() {
+  const wrap = document.getElementById('tarih-preview-cards');
+  if (!wrap) return;
+  try {
+    const [kronoloji, canakkale, muhtarlar, koklere] = await Promise.all([
+      getSectionWithContent('kronoloji'),
+      getSectionWithContent('canakkale'),
+      getSectionWithContent('muhtarlar'),
+      getSectionWithContent('koklere'),
+    ]);
+
+    // Kronoloji — ilk 6 list_item
+    const kronoHTML = kronoloji.blocks
+      .filter(b => b.type === 'list_item')
+      .slice(0, 9)
+      .map(b => {
+        // Önce meta.year'a bak, yoksa içerikten parse et
+        let year = b.meta?.year || '';
+        let text = b.content;
+        if (!year) {
+          const match = text.match(/^(\d{3,4}(?:\s*[–—-]\s*\d{2,4})?)\s*[–—-]\s*/);
+          if (match) {
+            year = match[1];
+            text = text.slice(match[0].length).trim();
+          }
+        } else {
+          text = text.replace(/^\d[\d\s\.–—-]*—?\s*/, '').trim();
+        }
+        return `<div class="tc-tl-item">
+          <span class="tc-tl-year">${year}</span>
+          <span class="tc-tl-text">${text}</span>
+        </div>`;
+      }).join('');
+
+    // Çanakkale — ilk 6 table_row
+    const sehitHTML = canakkale.blocks
+      .filter(b => b.type === 'table_row')
+      .slice(0, 9)
+      .map(b => {
+        const cols = b.meta?.cols || [];
+        return `<div class="tc-sehit-item">
+          <span class="tc-sehit-name">${cols[1] || '—'}</span>
+          <span class="tc-sehit-date">${cols[5] || ''}</span>
+        </div>`;
+      }).join('');
+
+    // Muhtarlar — ilk 6 table_row
+    const muhtarHTML = muhtarlar.blocks
+      .filter(b => b.type === 'table_row')
+      .slice(0, 9)
+      .map(b => {
+        const cols = b.meta?.cols || [];
+        return `<div class="tc-muhtar-item">
+          <span class="tc-muhtar-name">${cols[1] || '—'}</span>
+          <span class="tc-muhtar-donem">${cols[2] || ''}</span>
+        </div>`;
+      }).join('');
+
+    // Köklerimiz — ilk 6 list_item
+    const koklereHTML = koklere.blocks
+      .filter(b => b.type === 'list_item')
+      .slice(0, 9)
+      .map(b => {
+        let year = b.meta?.year || '';
+        let text = b.content;
+        if (!year) {
+          // · veya — veya - ayraçlarını destekle, M.Ö. gibi önekleri de yakala
+          const match = text.match(/^([A-ZÖa-zö\.\s~]*\d[\d\s\.]*)\s*[·–—-]\s*/);
+          if (match) { year = match[1].trim(); text = text.slice(match[0].length).trim(); }
+        } else {
+          text = text.replace(/^\d[\d\s\.–—-]*—?\s*/, '').trim();
+        }
+        return `<div class="tc-tl-item">
+          <span class="tc-tl-year">${year}</span>
+          <span class="tc-tl-text">${text}</span>
+        </div>`;
+      }).join('');
+
+    wrap.innerHTML = `
+      <!-- Köklerimiz Kartı -->
+      <div class="tarih-card">
+        <div class="tarih-card-header">
+          <i class="ti ti-crown"></i><h3>Köklerimize Yolculuk</h3>
+        </div>
+        <div class="tarih-card-body">${koklereHTML}</div>
+        <div class="tarih-card-footer">
+          <button onclick="openSection('koklere')">Tüm Tarih →</button>
+        </div>
+      </div>
+      <!-- Kronoloji Kartı -->
+      <div class="tarih-card">
+        <div class="tarih-card-header">
+          <i class="ti ti-timeline"></i><h3>Kronoloji</h3>
+        </div>
+        <div class="tarih-card-body">${kronoHTML}</div>
+        <div class="tarih-card-footer">
+          <button onclick="openSection('kronoloji')">Tam Kronoloji →</button>
+        </div>
+      </div>
+      <!-- Çanakkale Kartı -->
+      <div class="tarih-card">
+        <div class="tarih-card-header">
+          <i class="ti ti-flag"></i><h3>Çanakkale Şehitlerimiz</h3>
+        </div>
+        <div class="tarih-card-body">${sehitHTML}</div>
+        <div class="tarih-card-footer">
+          <button onclick="openSection('canakkale')">Tüm Şehitler →</button>
+        </div>
+      </div>
+      <!-- Muhtarlar Kartı -->
+      <div class="tarih-card">
+        <div class="tarih-card-header">
+          <i class="ti ti-building-community"></i><h3>Muhtarlarımız</h3>
+        </div>
+        <div class="tarih-card-body">${muhtarHTML}</div>
+        <div class="tarih-card-footer">
+          <button onclick="openSection('muhtarlar')">Tüm Liste →</button>
+        </div>
+      </div>`;
+
+  } catch(e) {
+    wrap.innerHTML = '';
+    console.error('loadTarihPreviewCards hatası:', e);
+  }
+}
+
 // ── MİNİ SÖZLÜK ───────────────────────────────────────────
 let allSozluk = [];
 
@@ -1179,29 +1338,19 @@ window.filterCommentsUI = async function(sectionId) {
 
 // ── KAYBETTİKLERİMİZ ─────────────────────────────────────────
 const OBITS_PAGE_SIZE = 25;
-let _obitsState = {
-  page: 0,
-  year: null,
-  search: '',
-  total: 0,
-  items: [],
-  loading: false,
-};
+let _obitsState = { page: 0, year: null, search: '', total: 0, items: [], loading: false };
 
 async function loadObits() {
-  // Yıl chip'lerini yükle
-  loadObitYearChips();
-  // İlk sayfayı yükle
+  await loadObitYearSelect();
   await fetchObits(true);
 }
 
-async function loadObitYearChips() {
+async function loadObitYearSelect() {
   const select = document.getElementById('obits-year-select');
   try {
     const counts = await getObitYearCounts();
     const years  = Object.keys(counts).sort((a, b) => b.localeCompare(a));
     const total  = Object.values(counts).reduce((a, b) => a + b, 0);
-
     select.innerHTML = `<option value="">Tüm Yıllar · ${total} kişi</option>` +
       years.map(y => `<option value="${y}">${y} · ${counts[y]} kişi</option>`).join('');
   } catch(e) {
@@ -1230,18 +1379,13 @@ async function fetchObits(reset = false) {
       year:     _obitsState.year,
       search:   _obitsState.search || null,
     });
-
     _obitsState.total  = count;
     _obitsState.items  = reset ? data : [..._obitsState.items, ...data];
     _obitsState.page  += 1;
-
-    renderObitsList(_obitsState.items, reset);
-
-    // Daha fazla var mı?
+    renderObitsList(_obitsState.items);
     const hasMore = _obitsState.items.length < count;
     document.getElementById('obits-load-more').style.display    = hasMore ? 'block' : 'none';
     document.getElementById('obits-loading-more').style.display = 'none';
-
   } catch(e) {
     document.getElementById('obits-list').innerHTML =
       `<div class="error-msg">Veriler yüklenemedi: ${e.message}</div>`;
@@ -1250,9 +1394,8 @@ async function fetchObits(reset = false) {
   }
 }
 
-function renderObitsList(items, reset = false) {
+function renderObitsList(items) {
   const el = document.getElementById('obits-list');
-
   if (!items.length) {
     el.innerHTML = `<div class="obits-empty">
       <i class="ti ti-search" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3"></i>
@@ -1260,32 +1403,18 @@ function renderObitsList(items, reset = false) {
     </div>`;
     return;
   }
-
-  if (reset) {
-    // Yıla göre grupla
-    el.innerHTML = renderObitsByYear(items);
-  } else {
-    // Mevcut gruplara ekle — son grubu bul ve devam et
-    el.innerHTML = renderObitsByYear(items);
-  }
-}
-
-function renderObitsByYear(items) {
+  // Yıla göre grupla
   const groups = {};
   items.forEach(o => {
     const year = o.death_date ? o.death_date.slice(0, 4) : 'Bilinmiyor';
     if (!groups[year]) groups[year] = [];
     groups[year].push(o);
   });
-
   const sortedYears = Object.keys(groups).sort((a, b) => b.localeCompare(a));
-
-  return sortedYears.map(year => `
+  el.innerHTML = sortedYears.map(year => `
     <div class="obits-year-group">
       <div class="obits-year-header">
-        <span class="obits-year-title">
-          <i class="ti ti-calendar" style="margin-right:6px;font-size:13px"></i>${year}
-        </span>
+        <span class="obits-year-title"><i class="ti ti-calendar" style="margin-right:6px;font-size:13px"></i>${year}</span>
         <span class="obits-year-count">${groups[year].length} kişi</span>
       </div>
       ${groups[year].map(o => obitItemHTML(o)).join('')}
@@ -1296,17 +1425,14 @@ function obitItemHTML(o) {
   const date = o.death_date
     ? new Date(o.death_date).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric' })
     : '';
-
   const photoHTML = o.photo_url
     ? `<img class="obit-photo" src="${o.photo_url}" alt="${escapeHtml(o.full_name)}"
         onclick="openLightbox('${o.photo_url}','${escapeHtml(o.full_name)}')">`
     : `<div class="obit-photo-placeholder"><i class="ti ti-user"></i></div>`;
-
   const metaParts = [];
   if (o.funeral_place) metaParts.push(`<i class="ti ti-building" style="font-size:11px;margin-right:3px"></i>${escapeHtml(o.funeral_place)}`);
   if (o.burial_place)  metaParts.push(`<i class="ti ti-map-pin" style="font-size:11px;margin-right:3px"></i>${escapeHtml(o.burial_place)}`);
   if (o.notes)         metaParts.push(`<i class="ti ti-info-circle" style="font-size:11px;margin-right:3px"></i>${escapeHtml(o.notes)}`);
-
   return `<div class="obit-item">
     ${photoHTML}
     <div class="obit-info">
@@ -1317,7 +1443,6 @@ function obitItemHTML(o) {
   </div>`;
 }
 
-// Yıl filtresi değişti
 window.obitsYearChanged = function(year) {
   _obitsState.year   = year || null;
   _obitsState.search = '';
@@ -1325,7 +1450,6 @@ window.obitsYearChanged = function(year) {
   fetchObits(true);
 };
 
-// Arama değişti — debounce ile
 let _obitsSearchTimer = null;
 window.obitsSearchChanged = function(val) {
   clearTimeout(_obitsSearchTimer);
@@ -1337,29 +1461,18 @@ window.obitsSearchChanged = function(val) {
   }, 400);
 };
 
-// Daha fazla yükle
-window.loadMoreObits = function() {
-  fetchObits(false);
-};
+window.loadMoreObits = function() { fetchObits(false); };
 
-// Eksik vefat bildirimi — topluluk sayfasına yönlendir
 window.goToObitSuggestion = function() {
-  // Topluluk sekmesine geç
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-topluluk').classList.add('active');
   document.querySelectorAll('.bottom-nav .nav-item')[3].classList.add('active');
-
-  // Formu doldur
   setTimeout(() => {
     const noteEl = document.getElementById('c-note');
     const textEl = document.getElementById('c-text');
     if (noteEl) noteEl.value = 'Eksik vefat kaydı bildirimi';
-    if (textEl) {
-      textEl.value = 'Ad Soyad:\nVefat Tarihi:\nEk bilgi:';
-      textEl.focus();
-    }
-    // Sayfayı form'a kaydır
+    if (textEl) { textEl.value = 'Ad Soyad:\nVefat Tarihi:\nEk bilgi:'; textEl.focus(); }
     document.getElementById('c-name')?.scrollIntoView({ behavior: 'smooth' });
   }, 100);
 };
