@@ -428,6 +428,19 @@ textarea.form-input{resize:none;min-height:72px}
     <div id="obits-loading-more" style="display:none;text-align:center;padding:12px 0">
       <div class="spinner" style="margin:0 auto"></div>
     </div>
+
+    <!-- Eksik kayıt bildirimi -->
+    <div style="background:rgba(139,69,19,.05);border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:8px;display:flex;align-items:center;gap:12px">
+      <i class="ti ti-info-circle" style="font-size:22px;color:var(--primary);flex-shrink:0"></i>
+      <div style="flex:1">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px">Eksik kayıt mı var?</div>
+        <div style="font-size:11px;color:var(--text-muted)">Listede olmayan bir vefatı bize bildirin, ekleyelim.</div>
+      </div>
+      <button onclick="goToObitSuggestion()"
+        style="background:var(--primary);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0">
+        Bildir
+      </button>
+    </div>
   </section>
 
 </main>
@@ -1327,6 +1340,28 @@ window.obitsSearchChanged = function(val) {
 // Daha fazla yükle
 window.loadMoreObits = function() {
   fetchObits(false);
+};
+
+// Eksik vefat bildirimi — topluluk sayfasına yönlendir
+window.goToObitSuggestion = function() {
+  // Topluluk sekmesine geç
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-topluluk').classList.add('active');
+  document.querySelectorAll('.bottom-nav .nav-item')[3].classList.add('active');
+
+  // Formu doldur
+  setTimeout(() => {
+    const noteEl = document.getElementById('c-note');
+    const textEl = document.getElementById('c-text');
+    if (noteEl) noteEl.value = 'Eksik vefat kaydı bildirimi';
+    if (textEl) {
+      textEl.value = 'Ad Soyad:\nVefat Tarihi:\nEk bilgi:';
+      textEl.focus();
+    }
+    // Sayfayı form'a kaydır
+    document.getElementById('c-name')?.scrollIntoView({ behavior: 'smooth' });
+  }, 100);
 };
 
 // ── NAVİGASYON ────────────────────────────────────────────
