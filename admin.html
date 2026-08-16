@@ -197,6 +197,7 @@ select.form-control{cursor:pointer}
         <i class="ti ti-message-circle"></i>Yorumlar
         <span id="pending-badge" style="margin-left:auto;background:var(--danger);color:#FFF;font-size:10px;padding:2px 7px;border-radius:10px;display:none"></span>
       </button>
+      <button class="nav-link" onclick="showPanel('obits',this)"><i class="ti ti-candle"></i>Vefat İlanları</button>
     </nav>
       <div class="nav-group-title">Sistem</div>
       <button class="nav-link" onclick="showPanel('settings',this)"><i class="ti ti-settings"></i>Site Ayarları</button>
@@ -435,6 +436,53 @@ select.form-control{cursor:pointer}
       </div>
     </div>
 
+    <!-- VEFAT İLANLARI PANELİ -->
+    <div id="panel-obits" class="panel">
+      <div class="panel-header">
+        <div>
+          <div class="panel-title">Vefat İlanları</div>
+          <div class="panel-subtitle">Kayıtları ekleyin, düzenleyin veya silin</div>
+        </div>
+        <button class="btn btn-primary" onclick="openObitModal()">
+          <i class="ti ti-plus"></i> Yeni Kayıt
+        </button>
+      </div>
+
+      <!-- Arama + filtre -->
+      <div style="display:flex;gap:8px;margin-bottom:12px">
+        <div style="position:relative;flex:1">
+          <i class="ti ti-search" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text-muted)"></i>
+          <input type="text" id="obits-admin-search" placeholder="İsim ara..."
+            style="width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;outline:none"
+            oninput="filterObitsAdmin(this.value)">
+        </div>
+        <select id="obits-admin-year" onchange="filterObitsAdmin()"
+          style="border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;font-family:inherit;outline:none;background:var(--bg-card)">
+          <option value="">Tüm Yıllar</option>
+        </select>
+      </div>
+
+      <div class="card">
+        <div class="card-body" style="padding:0">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Ad Soyad</th>
+                <th>Vefat Tarihi</th>
+                <th>Defin Yeri</th>
+                <th>Durum</th>
+                <th style="width:120px">İşlem</th>
+              </tr>
+            </thead>
+            <tbody id="obits-admin-tbody">
+              <tr><td colspan="5" class="loading-row"><span class="spinner"></span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="obits-admin-pagination" style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;font-size:12px;color:var(--text-muted)"></div>
+    </div>
+
     <!-- YEDEK PANELİ -->
     <div id="panel-backup" class="panel">
       <div class="panel-header">
@@ -505,6 +553,70 @@ select.form-control{cursor:pointer}
 </div>
 
 <!-- MODALS -->
+<!-- Obit Modal -->
+<div class="modal-bg" id="obit-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <h3 id="obit-modal-title">Yeni Vefat Kaydı</h3>
+      <button class="modal-close" onclick="closeModal('obit-modal')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div id="obit-modal-alert"></div>
+      <input type="hidden" id="obit-id">
+      <div class="form-group">
+        <label class="form-label">Ad Soyad *</label>
+        <input class="form-control" id="obit-name" placeholder="Tam ad soyad">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group">
+          <label class="form-label">Vefat Tarihi</label>
+          <input class="form-control" id="obit-death-date" type="date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cenaze Namazı Tarihi</label>
+          <input class="form-control" id="obit-funeral-date" type="date">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="form-group">
+          <label class="form-label">Cenaze Namazı Saati</label>
+          <input class="form-control" id="obit-funeral-time" placeholder="örn. 14:30">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cenaze Namazı Yeri</label>
+          <input class="form-control" id="obit-funeral-place" placeholder="örn. Nikfer Camii">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Defin Yeri</label>
+        <input class="form-control" id="obit-burial-place" placeholder="örn. Nikfer Mezarlığı">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Not</label>
+        <input class="form-control" id="obit-notes" placeholder="Ek bilgi">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Fotoğraf</label>
+        <input type="file" id="obit-photo-file" accept="image/*"
+          style="border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;width:100%;background:var(--bg)">
+        <div id="obit-photo-preview" style="margin-top:8px"></div>
+      </div>
+      <div class="form-group">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="obit-visible" checked>
+          <span class="form-label" style="margin:0">Yayında</span>
+        </label>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('obit-modal')">İptal</button>
+      <button class="btn btn-primary" onclick="saveObit()">
+        <i class="ti ti-check"></i> Kaydet
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- Section Modal -->
 <div class="modal-bg" id="section-modal">
   <div class="modal">
@@ -566,6 +678,17 @@ select.form-control{cursor:pointer}
             </span>
           </span>
         </label>
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          📂 Sayfa
+          <span style="font-size:10px;font-weight:400;color:var(--text-muted);margin-left:4px">Alt menüde nerede görünsün?</span>
+        </label>
+        <select class="form-control" id="section-page">
+          <option value="">— Sadece Ana Sayfa —</option>
+          <option value="kultur">Kültür</option>
+          <option value="tarih">Tarih</option>
+        </select>
       </div>
     </div>
     <div class="modal-footer">
@@ -771,7 +894,7 @@ import {
   supabase,
   signIn, signOut, getSession, onAuthChange,
   getSections, getAllSections, createSection, updateSection, deleteSection,
-  getContentBlocks, getAllContentBlocks, createBlock, updateBlock, deleteBlock,
+  getContentBlocks, createBlock, updateBlock, deleteBlock,
   getAudioFiles, uploadAudio, updateAudio, deleteAudio,
   uploadImage, updateImage, deleteImage, getGallery,
   getLinks, createLink, updateLink, deleteLink,
@@ -975,6 +1098,7 @@ window.showPanel = function(id, btn) {
   if (id === 'comments') loadComments('all');
   if (id === 'settings') loadSettings();
   if (id === 'backup')   loadBackupStats();
+  if (id === 'obits')    loadObitsAdmin();
 };
 
 // ── DASHBOARD ─────────────────────────────────────────────────
@@ -1137,6 +1261,7 @@ window.openSectionModal = function() {
   document.getElementById('section-id').value = '';
   ['section-title','section-subtitle','section-slug','section-icon','section-sort'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('section-visible').checked = true;
+  document.getElementById('section-page').value = '';
   openModal('section-modal');
 };
 
@@ -1155,10 +1280,9 @@ window.editSection = function(s) {
   document.getElementById('section-icon').value            = s.icon || '';
   document.getElementById('section-sort').value            = s.sort_order;
   document.getElementById('section-visible').checked       = s.is_visible;
-  document.getElementById('section-comments').checked      =
-    s.comments_enabled !== false;
-  document.getElementById('section-featured').checked      =
-    s.is_featured === true;
+  document.getElementById('section-comments').checked      = s.comments_enabled !== false;
+  document.getElementById('section-featured').checked      = s.is_featured === true;
+  document.getElementById('section-page').value            = s.page || '';
   openModal('section-modal');
 };
 
@@ -1174,6 +1298,7 @@ window.saveSectionUI = async function() {
     is_visible:       document.getElementById('section-visible').checked,
     comments_enabled: document.getElementById('section-comments').checked,
     is_featured:      document.getElementById('section-featured').checked,
+    page:             document.getElementById('section-page').value || null,
   };
   if (!payload.title || !payload.slug) {
     alert.innerHTML = '<div class="alert alert-danger">Başlık ve slug zorunludur.</div>'; return;
@@ -1225,7 +1350,7 @@ window.loadBlocks = async function(sectionId) {
   _currentSectionId = sectionId;
   const tbody = document.getElementById('blocks-tbody');
   tbody.innerHTML = '<tr><td colspan="4" class="loading-row"><span class="spinner"></span></td></tr>';
-  const blocks = await getAllContentBlocks(sectionId);
+  const blocks = await getContentBlocks(sectionId);
   _currentBlocks = blocks;
   renderBlocksTable(blocks, sectionId);
 };
@@ -1242,26 +1367,20 @@ function renderBlocksTable(blocks, sectionId) {
   const typeColors = {paragraph:'blue',heading:'purple',quote:'yellow',poem:'green',list_item:'blue',info_row:'yellow',table_row:'blue',note:'red',divider:'blue'};
   let rows = '';
   blocks.forEach((b, idx) => {
-    const isFirst   = idx === 0;
-    const isLast    = idx === blocks.length - 1;
-    const isVisible = b.is_visible !== false;
-    const preview   = (b.content || '—').replace(/</g,'&lt;').replace(/"/g,'&quot;').slice(0,65) + ((b.content||'').length > 65 ? '…' : '');
-    const color     = typeColors[b.type] || 'blue';
-    rows += `<tr style="${isVisible ? '' : 'opacity:.45;background:rgba(0,0,0,.02)'}">
+    const isFirst = idx === 0;
+    const isLast  = idx === blocks.length - 1;
+    const preview = (b.content || '—').replace(/</g,'&lt;').replace(/"/g,'&quot;').slice(0,65) + ((b.content||'').length > 65 ? '…' : '');
+    const color   = typeColors[b.type] || 'blue';
+    // Güvenli yol: onclick içine VERİ koymuyoruz, sadece ID ile cache'den çekiyoruz
+    rows += `<tr>
       <td style="font-weight:700;color:var(--primary);text-align:center;width:36px">${idx + 1}</td>
-      <td style="width:90px">
-        <span class="badge badge-${color}" style="white-space:nowrap;font-size:9px">${b.type}</span>
-        ${!isVisible ? '<span style="font-size:9px;color:var(--danger);display:block;margin-top:2px">gizli</span>' : ''}
-      </td>
+      <td style="width:90px"><span class="badge badge-${color}" style="white-space:nowrap;font-size:9px">${b.type}</span></td>
       <td style="font-size:11px;color:var(--text-muted);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${preview}</td>
-      <td style="width:210px">
+      <td style="width:190px">
         <div style="display:flex;gap:3px;align-items:center">
           <button class="btn btn-ghost btn-sm btn-icon" title="Yukarı" ${isFirst?'disabled style="opacity:.3"':''} onclick="moveBlock('${b.id}',-1)"><i class="ti ti-arrow-up"></i></button>
           <button class="btn btn-ghost btn-sm btn-icon" title="Aşağı" ${isLast?'disabled style="opacity:.3"':''} onclick="moveBlock('${b.id}',1)"><i class="ti ti-arrow-down"></i></button>
           <button class="btn btn-sm btn-icon" title="Altına ekle" style="background:rgba(39,174,96,.1);color:#1E8449;border:1px solid rgba(39,174,96,.3)" onclick="openBlockModalAfter(${idx+1})"><i class="ti ti-plus"></i></button>
-          <button class="btn btn-ghost btn-sm btn-icon" title="${isVisible ? 'Gizle' : 'Göster'}" onclick="toggleBlockVisibility('${b.id}',${isVisible})">
-            <i class="ti ti-${isVisible ? 'eye' : 'eye-off'}"></i>
-          </button>
           <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" data-block-id="${b.id}" onclick="editBlockById(this.dataset.blockId)"><i class="ti ti-pencil"></i></button>
           <button class="btn btn-danger btn-sm btn-icon" title="Sil" onclick="deleteBlockUI('${b.id}','${sectionId}')"><i class="ti ti-trash"></i></button>
         </div>
@@ -1276,15 +1395,6 @@ window.editBlockById = function(blockId) {
   const b = _currentBlocks.find(x => x.id === blockId);
   if (!b) { alert('Blok bulunamadı, sayfayı yenileyin.'); return; }
   editBlock(b);
-};
-
-window.toggleBlockVisibility = async function(blockId, currentlyVisible) {
-  try {
-    await updateBlock(blockId, { is_visible: !currentlyVisible });
-    await loadBlocks(_currentSectionId);
-  } catch(e) {
-    alert('Hata: ' + e.message);
-  }
 };
 
 window.moveBlock = async function(blockId, direction) {
@@ -1306,7 +1416,7 @@ window.moveBlock = async function(blockId, direction) {
 };
 
 async function normalizeBlockOrders(sectionId) {
-  const blocks = await getAllContentBlocks(sectionId);
+  const blocks = await getContentBlocks(sectionId);
   await Promise.all(blocks.map((b,i) => updateBlock(b.id, {sort_order:(i+1)*10})));
 }
 
@@ -1376,9 +1486,9 @@ window.onBlockTypeChange = function() {
     info_row:  ['Değer', '{"value": "Denizli"}'],
     table_row: ['Tablo Kolonları', '{"cols": ["1","Ad","Dönem"]}'],
     list_item: ['Ek Veri', '{"answer": "Karpuz"} (bilmece için) veya {"desc": "Açıklama"}'],
-    quote:     ['Alıntı Sahibi', '{"author": "Süleyman Özkan"}'],
+    quote:     ['Alıntı Sahibi', '{"author": "Musa ELBAŞI","year": "1912"}'],
     poem:      ['Şair', '{"author": "Hüseyin Hatipoğlu", "year": "1947"}'],
-    note:      ['', '{}'],
+    note:      ['Dipnot/Kaynak', '{"author": "Kaynak: Süleyman ÖZKAN"}'],
   };
   if (hints[type]) {
     metaGroup.style.display = 'block';
@@ -1973,6 +2083,251 @@ window.runRestore = async function() {
   loadBackupStats();
   fileInput.value = '';
 };
+
+// ── VEFAT İLANLARI YÖNETİMİ ─────────────────────────────────
+
+const OBITS_ADMIN_PAGE_SIZE = 30;
+let _obitsAdminState = { page: 0, search: '', year: '', total: 0 };
+
+async function loadObitsAdmin() {
+  await loadObitsAdminYears();
+  await fetchObitsAdmin(true);
+}
+
+async function loadObitsAdminYears() {
+  const sel = document.getElementById('obits-admin-year');
+  try {
+    const { data } = await supabase
+      .from('obits')
+      .select('death_date')
+      .not('death_date', 'is', null);
+
+    const years = [...new Set(data.map(o => o.death_date.slice(0, 4)))]
+      .sort((a, b) => b.localeCompare(a));
+
+    sel.innerHTML = '<option value="">Tüm Yıllar</option>' +
+      years.map(y => `<option value="${y}">${y}</option>`).join('');
+  } catch(e) {}
+}
+
+async function fetchObitsAdmin(reset = false) {
+  if (reset) {
+    _obitsAdminState.page = 0;
+    document.getElementById('obits-admin-tbody').innerHTML =
+      '<tr><td colspan="5" class="loading-row"><span class="spinner"></span></td></tr>';
+  }
+
+  const { page, search, year } = _obitsAdminState;
+  let builder = supabase
+    .from('obits')
+    .select('*', { count: 'exact' })
+    .order('death_date', { ascending: false, nullsFirst: false })
+    .range(page * OBITS_ADMIN_PAGE_SIZE, (page + 1) * OBITS_ADMIN_PAGE_SIZE - 1);
+
+  if (search) builder = builder.ilike('full_name', `%${search}%`);
+  if (year)   builder = builder.gte('death_date', `${year}-01-01`).lte('death_date', `${year}-12-31`);
+
+  const { data, count, error } = await builder;
+  if (error) { console.error(error); return; }
+
+  _obitsAdminState.total = count;
+  renderObitsAdminTable(data);
+  renderObitsAdminPagination(count);
+}
+
+function renderObitsAdminTable(rows) {
+  const tbody = document.getElementById('obits-admin-tbody');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="loading-row">Kayıt bulunamadı.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = rows.map(o => {
+    const date = o.death_date
+      ? new Date(o.death_date).toLocaleDateString('tr-TR')
+      : '—';
+    const badge = o.is_visible
+      ? '<span class="badge badge-green">Yayında</span>'
+      : '<span class="badge badge-red">Gizli</span>';
+    return `<tr>
+      <td style="font-weight:600;font-size:13px">${escapeHtml(o.full_name)}</td>
+      <td style="font-size:12px">${date}</td>
+      <td style="font-size:12px;color:var(--text-muted)">${escapeHtml(o.burial_place||'—')}</td>
+      <td>${badge}</td>
+      <td>
+        <div style="display:flex;gap:4px">
+          <button class="btn btn-ghost btn-sm btn-icon" title="Düzenle" onclick="editObit('${o.id}')">
+            <i class="ti ti-pencil"></i>
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon" title="Sil" onclick="deleteObitUI('${o.id}')">
+            <i class="ti ti-trash"></i>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderObitsAdminPagination(total) {
+  const el    = document.getElementById('obits-admin-pagination');
+  const page  = _obitsAdminState.page;
+  const pages = Math.ceil(total / OBITS_ADMIN_PAGE_SIZE);
+  const from  = page * OBITS_ADMIN_PAGE_SIZE + 1;
+  const to    = Math.min((page + 1) * OBITS_ADMIN_PAGE_SIZE, total);
+
+  el.innerHTML = `
+    <span>${from}–${to} / ${total} kayıt</span>
+    <div style="display:flex;gap:6px">
+      <button class="btn btn-ghost btn-sm" ${page === 0 ? 'disabled' : ''}
+        onclick="obitsAdminChangePage(${page - 1})">
+        <i class="ti ti-chevron-left"></i>
+      </button>
+      <span style="padding:4px 8px">${page + 1} / ${pages}</span>
+      <button class="btn btn-ghost btn-sm" ${page >= pages - 1 ? 'disabled' : ''}
+        onclick="obitsAdminChangePage(${page + 1})">
+        <i class="ti ti-chevron-right"></i>
+      </button>
+    </div>`;
+}
+
+window.obitsAdminChangePage = async function(page) {
+  _obitsAdminState.page = page;
+  await fetchObitsAdmin(false);
+};
+
+let _obitsAdminSearchTimer = null;
+window.filterObitsAdmin = function(val) {
+  clearTimeout(_obitsAdminSearchTimer);
+  _obitsAdminState.year = document.getElementById('obits-admin-year').value;
+  if (val !== undefined) {
+    _obitsAdminSearchTimer = setTimeout(() => {
+      _obitsAdminState.search = val.trim();
+      fetchObitsAdmin(true);
+    }, 400);
+  } else {
+    _obitsAdminState.search = document.getElementById('obits-admin-search').value.trim();
+    fetchObitsAdmin(true);
+  }
+};
+
+// Modal aç — yeni
+window.openObitModal = function() {
+  document.getElementById('obit-modal-title').textContent = 'Yeni Vefat Kaydı';
+  document.getElementById('obit-id').value          = '';
+  document.getElementById('obit-name').value        = '';
+  document.getElementById('obit-death-date').value  = '';
+  document.getElementById('obit-funeral-date').value = '';
+  document.getElementById('obit-funeral-time').value = '';
+  document.getElementById('obit-funeral-place').value = '';
+  document.getElementById('obit-burial-place').value = '';
+  document.getElementById('obit-notes').value       = '';
+  document.getElementById('obit-visible').checked   = true;
+  document.getElementById('obit-photo-preview').innerHTML = '';
+  document.getElementById('obit-photo-file').value  = '';
+  openModal('obit-modal');
+};
+
+// Modal aç — düzenle
+let _obitsCache = {};
+window.editObit = async function(id) {
+  // Önce cache'e bak, yoksa çek
+  let o = _obitsCache[id];
+  if (!o) {
+    const { data } = await supabase.from('obits').select('*').eq('id', id).single();
+    o = data;
+    _obitsCache[id] = o;
+  }
+  document.getElementById('obit-modal-title').textContent   = 'Kaydı Düzenle';
+  document.getElementById('obit-id').value                  = o.id;
+  document.getElementById('obit-name').value                = o.full_name || '';
+  document.getElementById('obit-death-date').value          = o.death_date || '';
+  document.getElementById('obit-funeral-date').value        = o.funeral_date || '';
+  document.getElementById('obit-funeral-time').value        = o.funeral_time || '';
+  document.getElementById('obit-funeral-place').value       = o.funeral_place || '';
+  document.getElementById('obit-burial-place').value        = o.burial_place || '';
+  document.getElementById('obit-notes').value               = o.notes || '';
+  document.getElementById('obit-visible').checked           = o.is_visible !== false;
+  document.getElementById('obit-photo-preview').innerHTML   = o.photo_url
+    ? `<img src="${o.photo_url}" style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid var(--border)">`
+    : '';
+  openModal('obit-modal');
+};
+
+// Kaydet
+window.saveObit = async function() {
+  const id   = document.getElementById('obit-id').value;
+  const name = document.getElementById('obit-name').value.trim();
+  if (!name) {
+    document.getElementById('obit-modal-alert').innerHTML =
+      '<div class="alert alert-danger">Ad Soyad zorunludur.</div>';
+    return;
+  }
+
+  const payload = {
+    full_name:     name,
+    death_date:    document.getElementById('obit-death-date').value  || null,
+    funeral_date:  document.getElementById('obit-funeral-date').value || null,
+    funeral_time:  document.getElementById('obit-funeral-time').value.trim()  || null,
+    funeral_place: document.getElementById('obit-funeral-place').value.trim() || null,
+    burial_place:  document.getElementById('obit-burial-place').value.trim()  || null,
+    notes:         document.getElementById('obit-notes').value.trim()         || null,
+    is_visible:    document.getElementById('obit-visible').checked,
+  };
+
+  // Fotoğraf yükleme
+  const photoFile = document.getElementById('obit-photo-file').files[0];
+  if (photoFile) {
+    const ext      = photoFile.name.split('.').pop();
+    const filePath = `obits/${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage.from('nikfer-media').upload(filePath, photoFile);
+    if (upErr) {
+      document.getElementById('obit-modal-alert').innerHTML =
+        `<div class="alert alert-danger">Fotoğraf yüklenemedi: ${upErr.message}</div>`;
+      return;
+    }
+    const { data: urlData } = supabase.storage.from('nikfer-media').getPublicUrl(filePath);
+    payload.photo_url  = urlData.publicUrl;
+    payload.photo_path = filePath;
+  }
+
+  try {
+    if (id) {
+      await supabase.from('obits').update(payload).eq('id', id);
+      delete _obitsCache[id];
+    } else {
+      await supabase.from('obits').insert(payload);
+    }
+    closeModal('obit-modal');
+    fetchObitsAdmin(true);
+  } catch(e) {
+    document.getElementById('obit-modal-alert').innerHTML =
+      `<div class="alert alert-danger">Hata: ${e.message}</div>`;
+  }
+};
+
+// Sil
+window.deleteObitUI = async function(id) {
+  if (!confirm('Bu kaydı silmek istediğinize emin misiniz?')) return;
+  try {
+    // Fotoğraf varsa Storage'dan sil
+    const { data: o } = await supabase.from('obits').select('photo_path').eq('id', id).single();
+    if (o?.photo_path) {
+      await supabase.storage.from('nikfer-media').remove([o.photo_path]);
+    }
+    await supabase.from('obits').delete().eq('id', id);
+    delete _obitsCache[id];
+    fetchObitsAdmin(true);
+  } catch(e) {
+    alert('Hata: ' + e.message);
+  }
+};
+
+// escapeHtml — admin tarafı için
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
 </script>
 </body>
 </html>
