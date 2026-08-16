@@ -1100,7 +1100,10 @@ async function loadTarihPreviewCards() {
           const match = text.match(/^([A-ZÖa-zö\.\s~]*\d[\d\s\.]*)\s*[·–—-]\s*/);
           if (match) { year = match[1].trim(); text = text.slice(match[0].length).trim(); }
         } else {
-          text = text.replace(/^\d[\d\s\.–—-]*—?\s*/, '').trim();
+          // meta.year varsa içerikten yıl + ayraç kısmını temizle
+          const match = text.match(/^([A-ZÖa-zö\.\s~]*\d[\d\s\.]*)\s*[·–—-]\s*/);
+          if (match) { text = text.slice(match[0].length).trim(); }
+          else { text = text.replace(year, '').replace(/^\s*[·–—-]\s*/, '').trim(); }
         }
         return `<div class="tc-tl-item">
           <span class="tc-tl-year">${year}</span>
