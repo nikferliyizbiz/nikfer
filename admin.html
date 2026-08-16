@@ -1903,6 +1903,7 @@ const BACKUP_TABLES = [
   { key: 'gallery',        label: 'Galeri',           query: () => supabase.from('gallery').select('*').order('sort_order') },
   { key: 'links',          label: 'Linkler',          query: () => supabase.from('links').select('*').order('sort_order') },
   { key: 'site_settings',  label: 'Site Ayarları',    query: () => supabase.from('site_settings').select('*') },
+  { key: 'obits',          label: 'Vefat İlanları',   query: () => supabase.from('obits').select('*').order('death_date', { ascending: false }) },
 ];
 
 async function loadBackupStats() {
@@ -1994,6 +1995,7 @@ const RESTORE_ORDER = [
   'gallery',
   'comments',
   'site_settings',
+  'obits',
 ];
 
 function restoreLog(msg, type = 'info') {
