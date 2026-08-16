@@ -409,8 +409,12 @@ textarea.form-input{resize:none;min-height:72px}
       <i class="ti ti-search"></i>
       <input type="text" id="obits-search-input" placeholder="İsim ara..." oninput="obitsSearchChanged(this.value)">
     </div>
-    <div class="chip-row" id="obits-year-chips">
-      <div class="loading" style="padding:4px 0"><div class="spinner" style="width:20px;height:20px;border-width:2px"></div></div>
+    <div style="position:relative;margin-bottom:10px">
+      <select id="obits-year-select" onchange="obitsYearChanged(this.value)"
+        style="width:100%;appearance:none;-webkit-appearance:none;border:1px solid var(--border);border-radius:10px;padding:10px 36px 10px 14px;font-size:13px;background:var(--bg-card);color:var(--text);outline:none;cursor:pointer;font-family:inherit">
+        <option value="">Tüm Yıllar</option>
+      </select>
+      <i class="ti ti-chevron-down" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:16px;color:var(--text-muted);pointer-events:none"></i>
     </div>
     <div id="obits-list">
       <div class="loading"><div class="spinner"></div></div>
@@ -1179,22 +1183,16 @@ async function loadObits() {
 }
 
 async function loadObitYearChips() {
-  const chipsEl = document.getElementById('obits-year-chips');
+  const select = document.getElementById('obits-year-select');
   try {
     const counts = await getObitYearCounts();
     const years  = Object.keys(counts).sort((a, b) => b.localeCompare(a));
     const total  = Object.values(counts).reduce((a, b) => a + b, 0);
 
-    chipsEl.innerHTML = `
-      <div class="chip active" onclick="obitsYearChanged(null, this)">
-        Tümü · ${total}
-      </div>
-      ${years.map(y => `
-        <div class="chip" onclick="obitsYearChanged('${y}', this)">
-          ${y} · ${counts[y]}
-        </div>`).join('')}`;
+    select.innerHTML = `<option value="">Tüm Yıllar · ${total} kişi</option>` +
+      years.map(y => `<option value="${y}">${y} · ${counts[y]} kişi</option>`).join('');
   } catch(e) {
-    chipsEl.innerHTML = '';
+    select.innerHTML = '<option value="">Tüm Yıllar</option>';
   }
 }
 
@@ -1307,10 +1305,8 @@ function obitItemHTML(o) {
 }
 
 // Yıl filtresi değişti
-window.obitsYearChanged = function(year, btn) {
-  document.querySelectorAll('#obits-year-chips .chip').forEach(c => c.classList.remove('active'));
-  btn.classList.add('active');
-  _obitsState.year   = year;
+window.obitsYearChanged = function(year) {
+  _obitsState.year   = year || null;
   _obitsState.search = '';
   document.getElementById('obits-search-input').value = '';
   fetchObits(true);
@@ -1323,10 +1319,7 @@ window.obitsSearchChanged = function(val) {
   _obitsSearchTimer = setTimeout(() => {
     _obitsState.search = val.trim();
     _obitsState.year   = null;
-    // Yıl chip'lerini sıfırla
-    document.querySelectorAll('#obits-year-chips .chip').forEach((c, i) => {
-      c.classList.toggle('active', i === 0);
-    });
+    document.getElementById('obits-year-select').value = '';
     fetchObits(true);
   }, 400);
 };
