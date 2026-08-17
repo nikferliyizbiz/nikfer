@@ -13,6 +13,8 @@ const CACHE_DYNAMIC = `nikfer-dynamic-${APP_VERSION}`;
 // Bu dosyalar her zaman network'ten gelsin, eski cache görünmesin
 const STATIC_ASSETS = [
   './manifest.json',
+  './style.css',   // ← ekle
+  './app.js',      // ← ekle
   'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css',
 ];
 
